@@ -2,23 +2,11 @@
 
 """Tests for `py_aas_rdf` package."""
 
-import pytest
+from py_aas_rdf.models.key import Key
 
 
-from py_aas_rdf import py_aas_rdf
-
-
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+def test_key_to_rdf():
+    payload = Key(**{"type": "AssetAdministrationShell", "value": "example"})
+    graph, created_node = payload.to_rdf()
+    re_created = Key.from_rdf(graph, created_node)
+    assert payload == re_created
