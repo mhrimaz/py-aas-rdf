@@ -95,6 +95,6 @@ class Reference(BaseModel, RDFiable):
 class SubmodelReference(Reference):
     type: ReferenceTypes = ReferenceTypes.ModelReference
     # At least one key should be there
-    keys: List[SubmodelKey] = Field(..., min_length=1, max_length=1)
+    keys: List[SubmodelKey] = Field(...)
     # this is not a mistake, since it is a recursive structure, we need to define it in this way.
     referredSemanticId: "Reference" = None
