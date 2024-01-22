@@ -21,9 +21,8 @@
 
 from typing import Any, List, Optional, Union, Literal
 
-import pydantic
 import rdflib
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, conlist
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
 from py_aas_rdf.models.key import Key, SubmodelKey
@@ -34,7 +33,7 @@ from py_aas_rdf.models.reference_types import ReferenceTypes
 class Reference(BaseModel, RDFiable):
     type: ReferenceTypes
     # At least one key should be there
-    keys: List[Key]
+    keys: conlist(Key, min_length=1)
     # this is not a mistake, since it is a recursive structure, we need to define it in this way.
     referredSemanticId: "Reference" = None
 
@@ -95,6 +94,6 @@ class Reference(BaseModel, RDFiable):
 class SubmodelReference(Reference):
     type: ReferenceTypes = ReferenceTypes.ModelReference
     # At least one key should be there
-    keys: List[SubmodelKey] = Field(...)
+    keys: conlist(Key, min_length=1)
     # this is not a mistake, since it is a recursive structure, we need to define it in this way.
     referredSemanticId: "Reference" = None
