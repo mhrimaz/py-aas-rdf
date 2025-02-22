@@ -56,10 +56,15 @@ class SubmodelElementCollection(SubmodelElement):
         if self.value:
             for idx, submodel_element in enumerate(self.value):
                 # headache
+                if self.idShort:
+                    child_prefix_uri = f"{prefix_uri}{self.idShort}."
+                else:
+                    # idShort is optional when we are in SML
+                    child_prefix_uri = f"{prefix_uri}"
                 _, created_sub_node = submodel_element.to_rdf(
                     graph,
                     created_node,
-                    prefix_uri=prefix_uri + self.idShort + ".",
+                    prefix_uri=child_prefix_uri,
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
