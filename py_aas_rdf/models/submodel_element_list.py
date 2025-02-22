@@ -110,7 +110,7 @@ class SubmodelElementList(SubmodelElement):
                 _, created_sub_node = element_value.to_rdf(
                     graph,
                     created_node,
-                    prefix_uri=prefix_uri + self.idShort + ".",
+                    prefix_uri=f"{prefix_uri}{self.idShort}%5B{idx}%5D.",
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
