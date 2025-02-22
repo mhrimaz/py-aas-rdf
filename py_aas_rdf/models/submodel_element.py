@@ -49,8 +49,11 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas", AASNameSpace.AAS)
-
-        node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
+        if self.idShort:
+            node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
+        else:
+            # This only happens when we are in SML
+            node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
 
         # Referable
         Referable.append_as_rdf(self, graph, node)
