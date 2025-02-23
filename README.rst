@@ -20,4 +20,6 @@ Python Code Example
     graph, node = Submodel(**{"id":"test", "modelType":"Submodel"}).to_rdf()
     print(graph.serialize(format="turtle_custom"))
 
+You can use this Jupyter Notebook (https://colab.research.google.com/drive/14myWROAKKG_0LX_U4stohioPfAIrqGhY?usp=sharing) that has a simple interface to convert JSON to RDF and vice versa.
+
 You can find in this Jupyter Notebook (https://colab.research.google.com/drive/1CwNy18p6gSNmHWd4Ng6F7z0a0XRf3WjY?usp=sharing) an example that showcase how SPARQL can be used to query the Asset Administration Shell.
