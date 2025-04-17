@@ -60,11 +60,11 @@ class Property(DataElement):
             (
                 created_node,
                 AASNameSpace.AAS["Property/valueType"],
-                AASNameSpace.AAS[f"DataTypeDefXsd/{self.valueType.name}"],
+                rdflib.XSD[self.valueType.value.replace("xs:","")],
             )
         )
         if self.value != None:
-            created_graph.add((created_node, AASNameSpace.AAS["Property/value"], rdflib.Literal(self.value)))
+            created_graph.add((created_node, AASNameSpace.AAS["Property/value"], rdflib.Literal(self.value,datatype=rdflib.XSD[self.valueType.value.replace("xs:","")])))
         if self.valueId:
             _, value_id_ref_node = self.valueId.to_rdf(created_graph, created_node)
             created_graph.add((created_node, AASNameSpace.AAS["Property/valueId"], value_id_ref_node))
@@ -78,7 +78,9 @@ class Property(DataElement):
             None,
         )
         if value_type_value_ref:
-            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("/") + 1 :]]
+            local_part = str(value_type_value_ref).split('#')[-1]
+            xs_value = f"xs:{local_part}"
+            value_type_value = DataTypeDefXsd(xs_value)
 
         value_value = None
         value_value_ref: rdflib.Literal = next(
@@ -86,7 +88,7 @@ class Property(DataElement):
             None,
         )
         if value_value_ref != None:
-            value_value = value_value_ref.value
+            value_value = str(value_value_ref.value)
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["Property/valueId"]),

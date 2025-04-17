@@ -30,3 +30,4 @@ class AssetKind(Enum):
     Instance = "Instance"
     NotApplicable = "NotApplicable"
     Type = "Type"
+    Role = "Role"

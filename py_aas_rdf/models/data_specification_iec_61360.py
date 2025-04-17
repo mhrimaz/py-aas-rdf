@@ -311,23 +311,15 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["DataSpecificationIec61360"]))
         for idx, preferredName in enumerate(self.preferredName):
-            _, created_node = preferredName.to_rdf(
-                graph=graph, parent_node=node, prefix_uri=prefix_uri, base_uri=base_uri, id_strategy=id_strategy
-            )
-            graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360/preferredName"], created_node))
+            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360/preferredName"], rdflib.Literal(preferredName.text,lang=preferredName.language)))
 
         if self.shortName:
             for idx, shortName in enumerate(self.shortName):
-                _, created_node = shortName.to_rdf(
-                    graph=graph, parent_node=node, prefix_uri=prefix_uri, base_uri=base_uri, id_strategy=id_strategy
-                )
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 graph.add(
                     (
                         node,
                         AASNameSpace.AAS["DataSpecificationIec61360/shortName"],
-                        created_node,
+                        rdflib.Literal(shortName.text,lang=shortName.language),
                     )
                 )
 
@@ -366,13 +358,11 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
 
         if self.definition:
             for idx, definition_lang_text in enumerate(self.definition):
-                _, created_node = definition_lang_text.to_rdf(graph=graph, parent_node=node)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 graph.add(
                     (
                         node,
                         AASNameSpace.AAS["DataSpecificationIec61360/definition"],
-                        created_node,
+                        rdflib.Literal(definition_lang_text.text,lang=definition_lang_text.language),
                     )
                 )
 
@@ -405,11 +395,11 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         for lang in graph.objects(
             subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/preferredName"]
         ):
-            pref_name_langs.append(LangStringPreferredNameTypeIec61360.from_rdf(graph, lang))
+            pref_name_langs.append(LangStringPreferredNameTypeIec61360(language=lang.language,text=lang.value))
 
         short_name_langs = []
         for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/shortName"]):
-            short_name_langs.append(LangStringShortNameTypeIec61360.from_rdf(graph, lang))
+            short_name_langs.append(LangStringShortNameTypeIec61360(language=lang.language,text=lang.value))
         if len(short_name_langs) == 0:
             short_name_langs = None
 
@@ -461,7 +451,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
 
         defintion_langs = []
         for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360/definition"]):
-            defintion_langs.append(LangStringDefinitionTypeIec61360.from_rdf(graph, lang))
+            defintion_langs.append(LangStringDefinitionTypeIec61360(language=lang.language,text=lang.value))
 
         if len(defintion_langs) == 0:
             defintion_langs = None

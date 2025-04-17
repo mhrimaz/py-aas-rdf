@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 
 """Tests for `py_aas_rdf` package."""
-from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair
+from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair, DataSpecificationIec61360
+from py_aas_rdf.models.environment import Environment
 from py_aas_rdf.models.key import Key
+from py_aas_rdf.models.multi_language_property import MultiLanguageProperty
+from py_aas_rdf.models.property import Property
+from py_aas_rdf.models.submodel import Submodel
 
 
 def test_key_to_rdf():
@@ -30,6 +34,39 @@ def test_value_reference_to_rdf():
     assert payload == re_created
 
 
+def test_value_mlp_to_rdf():
+    payload = MultiLanguageProperty(**{
+        "idShort": "mlp",
+        "modelType": "MultiLanguageProperty",
+        "description": [
+            {
+                "language": "es-419",
+                "text": "something_be9deae0"
+            }
+        ],
+        "displayName": [
+            {
+                "language": "zh-CN-a-myext-x-private",
+                "text": "something_535aeb51"
+            }
+        ],
+        "value": [
+            {
+                "language": "en",
+                "text": "something_cd7e6587"
+            },
+            {
+                "language": "de",
+                "text": "something_cd7e6587"
+            }
+        ],
+    })
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = MultiLanguageProperty.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
 def test_value_list_to_rdf():
     payload = ValueList(**{
         "valueReferencePairs": [
@@ -49,4 +86,159 @@ def test_value_list_to_rdf():
     })
     graph, created_node = payload.to_rdf()
     re_created = ValueList.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_dataspec_to_rdf():
+    payload = DataSpecificationIec61360(**{
+        "dataType": "DATE",
+        "definition": [
+            {
+                "language": "de-Qaaa",
+                "text": "something_2ae95f9f"
+            }
+        ],
+        "levelType": {
+            "max": True,
+            "min": True,
+            "nom": True,
+            "typ": True
+        },
+        "modelType": "DataSpecificationIec61360",
+        "preferredName": [
+            {
+                "language": "i-enochian",
+                "text": "something_84b0b440"
+            },
+            {
+                "language": "en-GB",
+                "text": "Something random in English 5b15c20d"
+            }
+        ],
+        "shortName": [
+            {
+                "language": "x-whatever",
+                "text": "something_65af8271"
+            }
+        ],
+        "sourceOfDefinition": "something_1bd907c8",
+        "symbol": "something_c13116d7",
+        "unit": "something_a6bd9450",
+        "unitId": {
+            "keys": [
+                {
+                    "type": "Submodel",
+                    "value": "urn:an-example01:69d96aad"
+                }
+            ],
+            "type": "ModelReference"
+        },
+        "value": "something_13759f45",
+        "valueFormat": "something_f019e5a8"
+    })
+    graph, created_node = payload.to_rdf()
+    re_created = DataSpecificationIec61360.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_property_to_rdf():
+    payload = Property(**{
+        "idShort": "something3fdd3eb4",
+        "modelType": "Property",
+        "value": "12.0",
+        "valueType": "xs:double"
+    })
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Property.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_env_to_rdf():
+    payload = Environment(**{
+        "assetAdministrationShells": [
+            {
+                "assetInformation": {
+                    "assetKind": "NotApplicable",
+                    "globalAssetId": "something_eea66fa1"
+                },
+                "submodels": [
+                    {
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "something_48c66017"
+                            }
+                        ],
+                        "type": "ModelReference"
+                    }
+                ],
+                "id": "something_142922d6",
+                "modelType": "AssetAdministrationShell"
+            }
+        ],
+        "submodels": [
+            {
+                "submodelElements": [
+                    {
+                        "idShort": "PropertyWithConceptDescription",
+                        "modelType": "Property",
+                        "value": "12.0",
+                        "valueType": "xs:double",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "something_8ccad77f"
+                                }
+                            ],
+                            "type": "ModelReference"
+                        }
+                    },
+                    {
+                        "idShort": "PropertyWithECLASSSemantic",
+                        "modelType": "Property",
+                        "value": "Test",
+                        "valueType": "xs:string",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO677#004"
+                                }
+                            ],
+                            "type": "ExternalReference"
+                        }
+                    },
+                    {
+                        "idShort": "PropertyWithIECCDDSemantic",
+                        "modelType": "Property",
+                        "value": "Test",
+                        "valueType": "xs:string",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0112/2///61360_4#AAD001#002"
+                                }
+                            ],
+                            "type": "ExternalReference"
+                        }
+                    }
+                ],
+                "id": "something_48c66017",
+                "modelType": "Submodel"
+            }
+        ],
+        "conceptDescriptions": [
+            {
+                "id": "something_8ccad77f",
+                "modelType": "ConceptDescription"
+            }
+        ]
+    })
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Property.from_rdf(graph, created_node)
     assert payload == re_created

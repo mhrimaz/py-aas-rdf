@@ -52,15 +52,10 @@ class MultiLanguageProperty(DataElement):
         # TODO: Empty string should not be None
         if self.value:
             for lang_value in self.value:
-                lang_node = rdflib.BNode()
-                created_graph.add((lang_node, RDF.type, AASNameSpace.AAS["LangStringTextType"]))
                 created_graph.add(
-                    (lang_node, AASNameSpace.AAS["AbstractLangString/language"], rdflib.Literal(lang_value.language))
+                    (created_node, AASNameSpace.AAS["MultiLanguageProperty/value"],
+                     rdflib.Literal(lang_value.text, lang=lang_value.language))
                 )
-                created_graph.add(
-                    (lang_node, AASNameSpace.AAS["AbstractLangString/text"], rdflib.Literal(lang_value.text))
-                )
-                created_graph.add((created_node, AASNameSpace.AAS["MultiLanguageProperty/value"], lang_node))
         if self.valueId:
             _, value_id_ref_node = self.valueId.to_rdf(created_graph, created_node)
             created_graph.add((created_node, AASNameSpace.AAS["MultiLanguageProperty/valueId"], value_id_ref_node))
@@ -69,20 +64,9 @@ class MultiLanguageProperty(DataElement):
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "MultiLanguageProperty":
         value_value = []
-        for lang_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/value"]):
-            lang_value = None
-            lang_uriref: rdflib.Literal = next(
-                graph.objects(subject=lang_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
-            )
-            if lang_uriref:
-                lang_value = lang_uriref.value
-            text_value = None
-            text_uriref: rdflib.Literal = next(
-                graph.objects(subject=lang_ref, predicate=AASNameSpace.AAS["AbstractLangString/text"]), None
-            )
-            if text_uriref:
-                text_value = text_uriref.value
-            language = LangStringTextType(language=lang_value, text=text_value)
+        for lan_literal in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/value"]):
+
+            language = LangStringTextType(language=lan_literal.language, text=lan_literal.value)
             value_value.append(language)
 
         if len(value_value) == 0:

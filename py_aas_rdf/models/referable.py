@@ -53,37 +53,11 @@ class Referable(HasExtensions):
             graph.add((parent_node, AASNameSpace.AAS["Referable/idShort"], rdflib.Literal(instance.idShort)))
         if instance.displayName:
             for idx, display_name_lan in enumerate(instance.displayName):
-                lang_node = rdflib.BNode()
-                graph.add((lang_node, rdflib.RDF.type, AASNameSpace.AAS["LangStringNameType"]))
-                graph.add((lang_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add(
-                    (
-                        lang_node,
-                        AASNameSpace.AAS["AbstractLangString/language"],
-                        rdflib.Literal(display_name_lan.language),
-                    )
-                )
-                graph.add(
-                    (lang_node, AASNameSpace.AAS["AbstractLangString/text"], rdflib.Literal(display_name_lan.text))
-                )
-                graph.add((parent_node, AASNameSpace.AAS["Referable/displayName"], lang_node))
+                graph.add((parent_node, AASNameSpace.AAS["Referable/displayName"], rdflib.Literal(display_name_lan.text,lang=display_name_lan.language)))
 
         if instance.description:
             for idx, description_lan in enumerate(instance.description):
-                lang_node = rdflib.BNode()
-                graph.add((lang_node, rdflib.RDF.type, AASNameSpace.AAS["LangStringNameType"]))
-                graph.add((lang_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add(
-                    (
-                        lang_node,
-                        AASNameSpace.AAS["AbstractLangString/language"],
-                        rdflib.Literal(description_lan.language),
-                    )
-                )
-                graph.add(
-                    (lang_node, AASNameSpace.AAS["AbstractLangString/text"], rdflib.Literal(description_lan.text))
-                )
-                graph.add((parent_node, AASNameSpace.AAS["Referable/description"], lang_node))
+                graph.add((parent_node, AASNameSpace.AAS["Referable/description"], rdflib.Literal(description_lan.text,lang=description_lan.language)))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
@@ -108,44 +82,17 @@ class Referable(HasExtensions):
 
         display_name_value = []
         for display_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable/displayName"]):
-            lang_ref: rdflib.Literal = next(
-                graph.objects(subject=display_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
-            )
-            language_value = None
-            if lang_ref:
-                language_value = lang_ref.value
 
-            text_ref: rdflib.Literal = next(
-                graph.objects(subject=display_ref, predicate=AASNameSpace.AAS["AbstractLangString/text"]), None
-            )
-
-            text_value = None
-            if text_ref:
-                text_value = text_ref.value
-
-            display_name_value.append(LangStringNameType(language=language_value, text=text_value))
+            display_name_value.append(LangStringNameType(language=display_ref.language, text=display_ref.value))
 
         if len(display_name_value) == 0:
             display_name_value = None
 
         description_value = []
         for description_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable/description"]):
-            lang_ref: rdflib.Literal = next(
-                graph.objects(subject=description_ref, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
-            )
-            language_value = None
-            if lang_ref:
-                language_value = lang_ref.value
 
-            text_ref: rdflib.Literal = next(
-                graph.objects(subject=description_ref, predicate=AASNameSpace.AAS["AbstractLangString/text"]), None
-            )
 
-            text_value = None
-            if text_ref:
-                text_value = text_ref.value
-
-            description_value.append(LangStringTextType(language=language_value, text=text_value))
+            description_value.append(LangStringTextType(language=description_ref.language, text=description_ref.value))
 
         if len(description_value) == 0:
             description_value = None
