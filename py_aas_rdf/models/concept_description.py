@@ -34,7 +34,7 @@ from py_aas_rdf.models.identifiable import Identifiable
 from py_aas_rdf.models.model_type import ModelType
 from py_aas_rdf.models.rdfiable import RDFiable
 from py_aas_rdf.models.reference import Reference
-from py_aas_rdf.models import base_64_url_encode, url_encode
+from py_aas_rdf.models import base_64_url_encode, url_encode, is_valid_uri, is_irdi
 
 
 class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
@@ -57,7 +57,12 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
         if id_strategy == "base64-url-encode":
             node = rdflib.URIRef(f"{base_uri}{base_64_url_encode(self.id)}")
         else:
-            node = rdflib.URIRef(f"{base_uri}{url_encode(self.id)}")
+            if is_valid_uri(self.id):
+                node = rdflib.URIRef(f"{self.id}")
+            elif is_irdi(self.id):
+                node = rdflib.URIRef(f"urn:irdi:{url_encode(self.id)}")
+            else:
+                node = rdflib.URIRef(f"{url_encode(self.id)}")
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["ConceptDescription"]))
 
         # Identifiable

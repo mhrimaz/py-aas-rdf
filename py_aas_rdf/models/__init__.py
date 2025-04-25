@@ -20,7 +20,31 @@
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from urllib.parse import quote, unquote
+import re
 import rdflib
+from rdflib import URIRef
+
+IRDI_PATTERN = re.compile(
+    r"^\d{4}[a-zA-Z0-9_./-]*#[a-zA-Z0-9_./-]+(?:#[a-zA-Z0-9_./-]+)?$"
+
+)
+
+
+def is_valid_uri(uri: str) -> bool:
+    return uri.startswith(('http://', 'https://', 'urn:'))
+
+
+def is_irdi(identifier: str) -> bool:
+    return bool(IRDI_PATTERN.fullmatch(identifier))
+
+
+def make_uri(identifier: str, base: str = "") -> str:
+    if is_valid_uri(identifier):
+        return URIRef(identifier)
+    elif is_irdi(identifier):
+        return URIRef(f"urn:irdi:{identifier.replace('-', '_').replace('#', '__')}")
+    else:
+        return URIRef(f"{base}{url_encode(identifier)}")
 
 
 def base_64_url_encode(data: str) -> str:
@@ -51,4 +75,5 @@ def url_decode(url_encoded_data: str) -> str:
     return unquote(url_encoded_data)
 
 
-rdflib.plugin.register("turtle_custom", rdflib.plugin.Serializer, "py_aas_rdf.models.serializer", "TurtleSerializerCustom")
+rdflib.plugin.register("turtle_custom", rdflib.plugin.Serializer, "py_aas_rdf.models.serializer",
+                       "TurtleSerializerCustom")

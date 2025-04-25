@@ -33,6 +33,7 @@ from py_aas_rdf.models.asset_administraion_shell import AssetAdministrationShell
 from py_aas_rdf.models.concept_description import ConceptDescription
 from py_aas_rdf.models.has_data_specification import HasDataSpecification
 from py_aas_rdf.models.has_semantics import HasSemantics
+from py_aas_rdf.models.key_types import KeyTypes
 from py_aas_rdf.models.qualifable import Qualifiable
 from py_aas_rdf.models.qualifier import Qualifier
 from py_aas_rdf.models.rdfiable import RDFiable
@@ -40,6 +41,29 @@ from py_aas_rdf.models.referable import Referable
 from py_aas_rdf.models.reference import Reference
 from py_aas_rdf.models.reference_types import ReferenceTypes
 from py_aas_rdf.models.submodel import Submodel
+from py_aas_rdf.models.util import from_unknown_rdf
+
+
+def find_child_element_by_id_short(graph: rdflib.Graph, parent_node: rdflib.URIRef, key_type: str, key_value: str) -> Optional[rdflib.URIRef]:
+    """Finds a child element (like a Property) within a parent (like a Submodel) by its idShort."""
+    # TODO: does not handle element within SML with index reference.
+    id_short_literal = rdflib.Literal(key_value)
+    # Elements within Submodel
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["Submodel/submodelElements"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+        if child_id_short == id_short_literal:
+            return child_node  # Found the matching child
+    # Elements within Submodel
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection/value"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+        if child_id_short == id_short_literal:
+            return child_node  # Found the matching child
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection/value"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+        if child_id_short == id_short_literal:
+            return child_node  # Found the matching child
+    return None
+
 
 
 class Environment(BaseModel, RDFiable):
@@ -147,7 +171,7 @@ class Environment(BaseModel, RDFiable):
                                    rdflib.URIRef(
                                        "https://cdd.iec.ch/cdd/iec61360/iec61360.nsf/PropertiesAllVersions/" + unversioned_irdi.replace(
                                            "#", "%23").replace("/", "-"))))
-
+            # I don't feel good about this code :)
             for reference_node in graph.subjects(RDF.type, AASNameSpace.AAS["Reference"]):
                 # iterate over keys in the order
                 # Reconstruct the reference object
@@ -155,16 +179,45 @@ class Environment(BaseModel, RDFiable):
                 # only resolve model reference
                 if reference_object.type == ReferenceTypes.ModelReference:
                     current_object = None
-                    current_node = None
-                    for key_object in reference_object.keys:
-                        print(key_object)
+                    # getting the root element which should have an ID
+                    current_node = next(
+                        graph.subjects(AASNameSpace.AAS["Identifiable/id"], rdflib.Literal(reference_object.keys[0].value)), None)
+
+                    # Process Subsequent Keys
+                    for i in range(1, len(reference_object.keys)):
+                        key = reference_object.keys[i]
+                        next_node = find_child_element_by_id_short(graph, current_node, key.type, key.value)
+                        if next_node:
+                            current_node = next_node
+                    graph.add((reference_node,AASNameSpace.AAS["Reference/resolvesTo"],current_node))
+
+
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Environment":
+        submodels_subjects = [subject for subject in
+                              graph.subjects(predicate=RDF.type, object=AASNameSpace.AAS["Submodel"])]
+        assetadministrationshell_subjects = [subject for subject in
+                                             graph.subjects(predicate=RDF.type,
+                                                            object=AASNameSpace.AAS["AssetAdministrationShell"])]
+        conceptdescription_subjects = [subject for subject in
+                                       graph.subjects(predicate=RDF.type,
+                                                      object=AASNameSpace.AAS["ConceptDescription"])]
+        shells = []
+        for subject in assetadministrationshell_subjects:
+            shells.append(AssetAdministrationShell.from_rdf(graph, subject))
+
+        submodels = []
+        for subject in submodels_subjects:
+            submodels.append(Submodel.from_rdf(graph, subject))
+
+        concept_descriptions = []
+        for subject in conceptdescription_subjects:
+            concept_descriptions.append(ConceptDescription.from_rdf(graph, subject))
 
         return Environment(
-            submodels=qualifiers_value,
-            assetAdministrationShells=referable.category,
-            conceptDescriptions=referable.idShort
+            submodels=submodels,
+            assetAdministrationShells=shells,
+            conceptDescriptions=concept_descriptions
         )

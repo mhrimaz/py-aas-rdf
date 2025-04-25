@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 """Tests for `py_aas_rdf` package."""
+from py_aas_rdf.models import make_uri, is_irdi
 from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair, DataSpecificationIec61360
 from py_aas_rdf.models.environment import Environment
 from py_aas_rdf.models.key import Key
@@ -137,21 +138,72 @@ def test_dataspec_to_rdf():
         "valueFormat": "something_f019e5a8"
     })
     graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+
     re_created = DataSpecificationIec61360.from_rdf(graph, created_node)
     assert payload == re_created
 
 
 def test_property_to_rdf():
-    payload = Property(**{
-        "idShort": "something3fdd3eb4",
-        "modelType": "Property",
-        "value": "12.0",
-        "valueType": "xs:double"
-    })
-    graph, created_node = payload.to_rdf()
-    print(graph.serialize(format='turtle'))
-    re_created = Property.from_rdf(graph, created_node)
-    assert payload == re_created
+    payloads = [
+        {
+            "idShort": "PropertyWithConceptDescription",
+            "modelType": "Property",
+            "value": "12.0",
+            "valueType": "xs:double",
+            "semanticId": {
+                "keys": [
+                    {
+                        "type": "ConceptDescription",
+                        "value": "something_8ccad77f"
+                    }
+                ],
+                "type": "ModelReference"
+            }
+        },
+        {
+            "idShort": "PropertyWithECLASSSemantic",
+            "modelType": "Property",
+            "value": "Test",
+            "valueType": "xs:string",
+            "semanticId": {
+                "keys": [
+                    {
+                        "type": "GlobalReference",
+                        "value": "0173-1#02-AAO677#004"
+                    }
+                ],
+                "type": "ExternalReference"
+            }
+        },
+        {
+            "idShort": "PropertyWithIECCDDSemantic",
+            "modelType": "Property",
+            "value": "Test",
+            "valueType": "xs:string",
+            "semanticId": {
+                "keys": [
+                    {
+                        "type": "GlobalReference",
+                        "value": "0112/2///61360_4#AAD001#002"
+                    }
+                ],
+                "type": "ExternalReference"
+            }
+        },
+        {
+            "idShort": "something3fdd3eb4",
+            "modelType": "Property",
+            "value": "12.013",
+            "valueType": "xs:double"
+        }
+    ]
+    for payload in payloads:
+        payload = Property(**payload)
+        graph, created_node = payload.to_rdf()
+        print(graph.serialize(format='turtle'))
+        re_created = Property.from_rdf(graph, created_node)
+        assert payload == re_created
 
 
 def test_env_to_rdf():
@@ -240,5 +292,161 @@ def test_env_to_rdf():
 
     graph, created_node = payload.to_rdf()
     print(graph.serialize(format='turtle'))
-    re_created = Property.from_rdf(graph, created_node)
+    re_created = Environment.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_irdi():
+    assert is_irdi("0173-1#02-AAA123#001") == True
+    assert is_irdi("0112-1-a-18582#KAA802#s") == True
+    assert is_irdi("0112/2///61360_4#AAD001") == True
+
+def test_iri():
+    assert str(make_uri("http://example.com/aas1")) == "http://example.com/aas1"
+    assert str(make_uri("0173-1#02-AAA123#001")) == "http://example.com/aas1"
+
+def test_complex_env_to_rdf():
+    payload = Environment(**{
+        "assetAdministrationShells": [
+            {
+                "assetInformation": {
+                    "assetKind": "NotApplicable",
+                    "globalAssetId": "something_eea66fa1"
+                },
+                "submodels": [
+                    {
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "something_48c66017"
+                            }
+                        ],
+                        "type": "ModelReference"
+                    },
+                    {
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "https://aas.metaphacts.cloud/submodels/source"
+                            }
+                        ],
+                        "type": "ModelReference"
+                    },
+                    {
+                        "keys": [
+                            {
+                                "type": "Submodel",
+                                "value": "https://aas.metaphacts.cloud/submodels/target"
+                            }
+                        ],
+                        "type": "ModelReference"
+                    }
+                ],
+                "id": "something_142922d6",
+                "modelType": "AssetAdministrationShell"
+            }
+        ],
+        "submodels": [
+            {
+                "submodelElements": [
+                    {
+                        "idShort": "PropertyWithConceptDescription",
+                        "modelType": "Property",
+                        "value": "12.0",
+                        "valueType": "xs:double",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "ConceptDescription",
+                                    "value": "something_8ccad77f"
+                                }
+                            ],
+                            "type": "ModelReference"
+                        }
+                    },
+                    {
+                        "idShort": "PropertyWithECLASSSemantic",
+                        "modelType": "Property",
+                        "value": "Test",
+                        "valueType": "xs:string",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0173-1#02-AAO677#004"
+                                }
+                            ],
+                            "type": "ExternalReference"
+                        }
+                    },
+                    {
+                        "idShort": "PropertyWithIECCDDSemantic",
+                        "modelType": "Property",
+                        "value": "Test",
+                        "valueType": "xs:string",
+                        "semanticId": {
+                            "keys": [
+                                {
+                                    "type": "GlobalReference",
+                                    "value": "0112/2///61360_4#AAD001#002"
+                                }
+                            ],
+                            "type": "ExternalReference"
+                        }
+                    }
+                ],
+                "id": "something_48c66017",
+                "modelType": "Submodel"
+            },
+            {
+                "idShort": "Inventory",
+                "id": "https://aas.metaphacts.cloud/submodels/source",
+                "kind": "Instance",
+                "submodelElements": [
+                    {
+                        "idShort": "ReferenceToManufacturerProperty",
+                        "value": {
+                            "type": "ModelReference",
+                            "keys": [
+                                {
+                                    "type": "Submodel",
+                                    "value": " https://aas.metaphacts.com/submodels/target"
+                                },
+                                {
+                                    "type": "Property",
+                                    "value": "Manufacturer"
+                                }
+                            ]
+                        },
+                        "modelType": "ReferenceElement"
+                    }
+                ],
+                "modelType": "Submodel"
+            },
+            {
+                "idShort": "ProductInformation",
+                "id": "https://aas.metaphacts.cloud/submodels/target",
+                "kind": "Instance",
+                "submodelElements": [
+                    {
+                        "idShort": "Manufacturer",
+                        "valueType": "xs:string",
+                        "value": "metaphacts",
+                        "modelType": "Property"
+                    }
+                ],
+                "modelType": "Submodel"
+            }
+        ],
+        "conceptDescriptions": [
+            {
+                "id": "something_8ccad77f",
+                "modelType": "ConceptDescription"
+            }
+        ]
+    })
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Environment.from_rdf(graph, created_node)
     assert payload == re_created

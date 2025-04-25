@@ -44,7 +44,7 @@ from py_aas_rdf.models.reference import Reference
 from py_aas_rdf.models.submodel_element import SubmodelElement
 from py_aas_rdf.models.submodel_element_choice import SubmodelElementChoice
 from py_aas_rdf.models.util import from_unknown_rdf
-from py_aas_rdf.models import base_64_url_encode, url_encode
+from py_aas_rdf.models import base_64_url_encode, url_encode, is_valid_uri, is_irdi
 
 
 class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecification, RDFiable):
@@ -71,7 +71,12 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         if id_strategy == "base64-url-encode":
             node = rdflib.URIRef(f"{base_uri}{base_64_url_encode(self.id)}")
         else:
-            node = rdflib.URIRef(f"{base_uri}{url_encode(self.id)}")
+            if is_valid_uri(self.id):
+                node = rdflib.URIRef(f"{self.id}")
+            elif is_irdi(self.id):
+                node = rdflib.URIRef(f"urn:irdi:{url_encode(self.id)}")
+            else:
+                node = rdflib.URIRef(f"{url_encode(self.id)}")
         graph.add((node, RDF.type, AASNameSpace.AAS["Submodel"]))
         # Identifiable
         Identifiable.append_as_rdf(self, graph, node)
@@ -108,7 +113,12 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
                 if id_strategy == "base64-url-encode":
                     common_pref = f"{base_64_url_encode(self.id)}/submodel-elements/"
                 else:
-                    common_pref = f"{url_encode(self.id+'/submodel-elements/')}"
+                    if is_valid_uri(self.id):
+                        common_pref = f"{self.id}/"
+                    elif is_irdi(self.id):
+                        common_pref = f"urn:irdi:{url_encode(self.id)}:submodel-element:"
+                    else:
+                        common_pref = f"{url_encode(self.id)}/submodel-elements/"
 
                 _, created_node = submodel_element.to_rdf(
                     graph, node, prefix_uri=common_pref, base_uri=base_uri, id_strategy=id_strategy
