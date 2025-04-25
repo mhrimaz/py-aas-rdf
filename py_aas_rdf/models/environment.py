@@ -147,8 +147,9 @@ class Environment(BaseModel, RDFiable):
                     submodel_id = submodel_ref.keys[0].value
                     submodel_node = next(
                         graph.subjects(AASNameSpace.AAS["Identifiable/id"], rdflib.Literal(submodel_id)), None)
-                    graph.add((aas_node, AASNameSpace.AAS["Shortcuts/submodel"], submodel_node))
-                    graph.add((submodel_node, AASNameSpace.AAS["Shortcuts/assetAdministrationShell"], aas_node))
+                    if submodel_node:
+                        graph.add((aas_node, AASNameSpace.AAS["Shortcuts/submodel"], submodel_node))
+                        graph.add((submodel_node, AASNameSpace.AAS["Shortcuts/assetAdministrationShell"], aas_node))
 
             # Link all semanticId to ConceptDescription
             for element_node, semantic_id_node in graph.subject_objects(AASNameSpace.AAS["HasSemantics/semanticId"]):
@@ -157,7 +158,8 @@ class Environment(BaseModel, RDFiable):
                     cd_node = next(graph.subjects(AASNameSpace.AAS["Identifiable/id"],
                                                   rdflib.Literal(reference_object.keys[0].value)),
                                    None)
-                    graph.add((element_node, AASNameSpace.AAS["Shortcuts/conceptDescription"], cd_node))
+                    if cd_node:
+                        graph.add((element_node, AASNameSpace.AAS["Shortcuts/conceptDescription"], cd_node))
 
                 if reference_object.type == ReferenceTypes.ExternalReference:
                     # ECLASS Has RDF Resrouces
@@ -189,7 +191,8 @@ class Environment(BaseModel, RDFiable):
                         next_node = find_child_element_by_id_short(graph, current_node, key.type, key.value)
                         if next_node:
                             current_node = next_node
-                    graph.add((reference_node,AASNameSpace.AAS["Reference/resolvesTo"],current_node))
+                    if current_node:
+                        graph.add((reference_node,AASNameSpace.AAS["Reference/resolvesTo"],current_node))
 
 
         return graph, node
