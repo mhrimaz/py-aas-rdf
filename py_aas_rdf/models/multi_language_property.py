@@ -53,18 +53,18 @@ class MultiLanguageProperty(DataElement):
         if self.value:
             for lang_value in self.value:
                 created_graph.add(
-                    (created_node, AASNameSpace.AAS["MultiLanguageProperty/value"],
+                    (created_node, AASNameSpace.AAS["MultiLanguageProperty_value"],
                      rdflib.Literal(lang_value.text, lang=lang_value.language))
                 )
         if self.valueId:
             _, value_id_ref_node = self.valueId.to_rdf(created_graph, created_node)
-            created_graph.add((created_node, AASNameSpace.AAS["MultiLanguageProperty/valueId"], value_id_ref_node))
+            created_graph.add((created_node, AASNameSpace.AAS["MultiLanguageProperty_valueId"], value_id_ref_node))
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "MultiLanguageProperty":
         value_value = []
-        for lan_literal in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/value"]):
+        for lan_literal in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty_value"]):
 
             language = LangStringTextType(language=lan_literal.language, text=lan_literal.value)
             value_value.append(language)
@@ -74,7 +74,7 @@ class MultiLanguageProperty(DataElement):
 
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty/valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty_valueId"]),
             None,
         )
         if value_id_value_ref:

@@ -54,15 +54,15 @@ class Range(DataElement):
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["Range/valueType"],
-                AASNameSpace.AAS[f"DataTypeDefXsd/{self.valueType.name}"],
+                AASNameSpace.AAS["Range_valueType"],
+                AASNameSpace.AAS[f"DataTypeDefXsd_{self.valueType.name}"],
             )
         )
         if self.min != None:
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["Range/min"],
+                    AASNameSpace.AAS["Range_min"],
                     rdflib.Literal(self.min),
                 )
             )
@@ -70,7 +70,7 @@ class Range(DataElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["Range/max"],
+                    AASNameSpace.AAS["Range_max"],
                     rdflib.Literal(self.max),
                 )
             )
@@ -80,7 +80,7 @@ class Range(DataElement):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Range":
         value_type_value = None
         value_type_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range/valueType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_valueType"]),
             None,
         )
         if value_type_value_ref:
@@ -88,7 +88,7 @@ class Range(DataElement):
 
         min_value = None
         min_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range/min"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_min"]),
             None,
         )
         if min_ref:
@@ -96,7 +96,7 @@ class Range(DataElement):
 
         max_value = None
         max_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range/max"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_max"]),
             None,
         )
         if max_ref:

@@ -53,7 +53,7 @@ class OperationVariable(BaseModel, RDFiable):
         node = rdflib.BNode()
         graph.add((node, RDF.type, AASNameSpace.AAS["OperationVariable"]))
         _, created_node = self.value.to_rdf(graph, node)
-        graph.add((node, AASNameSpace.AAS["OperationVariable/value"], created_node))
+        graph.add((node, AASNameSpace.AAS["OperationVariable_value"], created_node))
         return graph, node
 
     @staticmethod
@@ -62,7 +62,7 @@ class OperationVariable(BaseModel, RDFiable):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         value_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["OperationVariable/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["OperationVariable_value"]),
             None,
         )
         if value_value_ref:
@@ -91,32 +91,32 @@ class Operation(SubmodelElement):
             for idx, input_variable in enumerate(self.inputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation/inputVariables"], created_sub_node))
+                created_graph.add((created_node, AASNameSpace.AAS["Operation_inputVariables"], created_sub_node))
 
         if self.outputVariables:
             for idx, input_variable in enumerate(self.outputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation/outputVariables"], created_sub_node))
+                created_graph.add((created_node, AASNameSpace.AAS["Operation_outputVariables"], created_sub_node))
         if self.inoutputVariables:
             for idx, input_variable in enumerate(self.inoutputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation/inoutputVariables"], created_sub_node))
+                created_graph.add((created_node, AASNameSpace.AAS["Operation_inoutputVariables"], created_sub_node))
 
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Operation":
         input_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/inputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_inputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             input_variables_value.append(element)
         if len(input_variables_value) == 0:
             input_variables_value = None
 
         output_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/outputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_outputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             output_variables_value.append(element)
         if len(output_variables_value) == 0:

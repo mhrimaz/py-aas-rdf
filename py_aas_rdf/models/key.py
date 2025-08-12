@@ -54,14 +54,14 @@ class Key(BaseModel, RDFiable):
         graph.add(
             (
                 node,
-                AASNameSpace.AAS["Key/type"],
-                AASNameSpace.AAS[f"KeyTypes/{self.type.value}"],
+                AASNameSpace.AAS["Key_type"],
+                AASNameSpace.AAS[f"KeyTypes_{self.type.value}"],
             )
         )
         graph.add(
             (
                 node,
-                AASNameSpace.AAS["Key/value"],
+                AASNameSpace.AAS["Key_value"],
                 rdflib.Literal(self.value),
             )
         )
@@ -71,11 +71,11 @@ class Key(BaseModel, RDFiable):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         payload = {}
         key_type: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key/type"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key_type"]),
             None,
         )
         value: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key_value"]),
             None,
         )
         payload["type"] = key_type[key_type.rfind("/") + 1 :]

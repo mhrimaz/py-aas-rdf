@@ -51,14 +51,14 @@ class File(DataElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["File/value"],
+                    AASNameSpace.AAS["File_value"],
                     rdflib.Literal(self.value),
                 )
             )
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["File/contentType"],
+                AASNameSpace.AAS["File_contentType"],
                 rdflib.Literal(self.contentType),
             )
         )
@@ -68,14 +68,14 @@ class File(DataElement):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "File":
         value_value = None
         value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["File/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["File_value"]),
             None,
         )
         if value_ref:
             value_value = value_ref.value
         content_type_value = None
         content_type_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["File/contentType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["File_contentType"]),
             None,
         )
         if content_type_ref:

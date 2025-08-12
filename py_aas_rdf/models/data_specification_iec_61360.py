@@ -49,17 +49,17 @@ class LangStringPreferredNameTypeIec61360(AbstractLangString, RDFiable):
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LangStringPreferredNameTypeIec61360"]))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString/language"], rdflib.Literal(self.language)))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString/text"], rdflib.Literal(self.text)))
+        graph.add((node, AASNameSpace.AAS["AbstractLangString_language"], rdflib.Literal(self.language)))
+        graph.add((node, AASNameSpace.AAS["AbstractLangString_text"], rdflib.Literal(self.text)))
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         language: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString/language"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_language"]), None
         )
         text: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString/text"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_text"]),
             None,
         )
         return LangStringPreferredNameTypeIec61360(language=language.value, text=text.value)
@@ -82,7 +82,7 @@ class LangStringShortNameTypeIec61360(AbstractLangString, RDFiable):
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LangStringShortNameTypeIec61360"]))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString/language"], rdflib.Literal(self.language)))
+        graph.add((node, AASNameSpace.AAS["AbstractLangString_language"], rdflib.Literal(self.language)))
         graph.add((node, AASNameSpace.AAS["AbstractLangString/text"], rdflib.Literal(self.text)))
         return graph, node
 

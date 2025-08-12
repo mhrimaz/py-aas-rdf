@@ -64,8 +64,8 @@ class Entity(SubmodelElement):
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["Entity/entityType"],
-                AASNameSpace.AAS[f"EntityType/{self.entityType.name}"],
+                AASNameSpace.AAS["Entity_entityType"],
+                AASNameSpace.AAS[f"EntityType_{self.entityType.name}"],
             )
         )
         if self.statements:
@@ -78,12 +78,12 @@ class Entity(SubmodelElement):
                     id_strategy=id_strategy,
                 )
                 graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["Entity/statements"], created_sub_node))
+                graph.add((created_node, AASNameSpace.AAS["Entity_statements"], created_sub_node))
         if self.globalAssetId:
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["Entity/globalAssetId"],
+                    AASNameSpace.AAS["Entity_globalAssetId"],
                     rdflib.Literal(self.globalAssetId),
                 )
             )
@@ -92,7 +92,7 @@ class Entity(SubmodelElement):
             for idx, specific_asset_id in enumerate(self.specificAssetIds):
                 _, created_sub_node = specific_asset_id.to_rdf(graph, created_node, prefix_uri=str(created_node) + ".")
                 graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["Entity/specificAssetIds"], created_sub_node))
+                graph.add((created_node, AASNameSpace.AAS["Entity_specificAssetIds"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
@@ -100,7 +100,7 @@ class Entity(SubmodelElement):
         statements_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
-        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/statements"]):
+        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity_statements"]):
             element = from_unknown_rdf(graph, statement_uriref)
             statements_value.append(element)
 
@@ -109,7 +109,7 @@ class Entity(SubmodelElement):
 
         entity_type_value = None
         entity_type_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/entityType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity_entityType"]),
             None,
         )
         if entity_type_ref:
@@ -117,14 +117,14 @@ class Entity(SubmodelElement):
 
         global_asset_id_value = None
         global_asset_id_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/globalAssetId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity_globalAssetId"]),
             None,
         )
         if global_asset_id_ref:
             global_asset_id_value = global_asset_id_ref.value
 
         specificAssetIds_value = []
-        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity/specificAssetIds"]):
+        for statement_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Entity_specificAssetIds"]):
             element = SpecificAssetId.from_rdf(graph, statement_uriref)
             specificAssetIds_value.append(element)
         if len(specificAssetIds_value) == 0:

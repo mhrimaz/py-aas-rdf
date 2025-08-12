@@ -81,41 +81,41 @@ class BasicEventElement(EventElement):
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["BasicEventElement"]))
 
         _, created_observed_node = self.observed.to_rdf(created_graph, created_node)
-        created_graph.add((created_node, AASNameSpace.AAS["BasicEventElement/observed"], created_observed_node))
+        created_graph.add((created_node, AASNameSpace.AAS["BasicEventElement_observed"], created_observed_node))
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["BasicEventElement/direction"],
-                AASNameSpace.AAS[f"Direction/{self.direction.name}"],
+                AASNameSpace.AAS["BasicEventElement_direction"],
+                AASNameSpace.AAS[f"Direction_{self.direction.name}"],
             )
         )
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["BasicEventElement/state"],
-                AASNameSpace.AAS[f"StateOfEvent/{self.state.name}"],
+                AASNameSpace.AAS["BasicEventElement_state"],
+                AASNameSpace.AAS[f"StateOfEvent_{self.state.name}"],
             )
         )
         if self.messageTopic:
             _, created_message_broker_node = self.messageBroker.to_rdf(created_graph, created_node)
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement/messageBroker"], created_message_broker_node)
+                (created_node, AASNameSpace.AAS["BasicEventElement_messageBroker"], created_message_broker_node)
             )
         if self.messageBroker:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement/messageTopic"], rdflib.Literal(self.messageTopic))
+                (created_node, AASNameSpace.AAS["BasicEventElement_messageTopic"], rdflib.Literal(self.messageTopic))
             )
         if self.lastUpdate:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement/lastUpdate"], rdflib.Literal(self.lastUpdate))
+                (created_node, AASNameSpace.AAS["BasicEventElement_lastUpdate"], rdflib.Literal(self.lastUpdate))
             )
         if self.minInterval:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement/minInterval"], rdflib.Literal(self.minInterval))
+                (created_node, AASNameSpace.AAS["BasicEventElement_minInterval"], rdflib.Literal(self.minInterval))
             )
         if self.maxInterval:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement/maxInterval"], rdflib.Literal(self.maxInterval))
+                (created_node, AASNameSpace.AAS["BasicEventElement_maxInterval"], rdflib.Literal(self.maxInterval))
             )
         return created_graph, created_node
 
@@ -123,7 +123,7 @@ class BasicEventElement(EventElement):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "BasicEventElement":
         observed_value = None
         observed_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/observed"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_observed"]),
             None,
         )
         if observed_ref:
@@ -131,7 +131,7 @@ class BasicEventElement(EventElement):
 
         direction_value = None
         direction_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/direction"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_direction"]),
             None,
         )
         if direction_ref:
@@ -139,7 +139,7 @@ class BasicEventElement(EventElement):
 
         state_value = None
         state_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/state"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_state"]),
             None,
         )
         if state_ref:
@@ -147,7 +147,7 @@ class BasicEventElement(EventElement):
 
         message_topic_value = None
         message_topic_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/messageTopic"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_messageTopic"]),
             None,
         )
         if message_topic_ref:
@@ -155,7 +155,7 @@ class BasicEventElement(EventElement):
 
         message_broker_value = None
         message_broker_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/messageBroker"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_messageBroker"]),
             None,
         )
         if message_broker_ref:
@@ -163,14 +163,14 @@ class BasicEventElement(EventElement):
 
         last_update_value = None
         last_update_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/lastUpdate"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_lastUpdate"]),
             None,
         )
         if last_update_ref:
             last_update_value = last_update_ref.value
         min_interval_value = None
         min_interval_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/minInterval"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_minInterval"]),
             None,
         )
         if min_interval_ref:
@@ -178,7 +178,7 @@ class BasicEventElement(EventElement):
 
         max_interval_value = None
         max_interval_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement/maxInterval"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_maxInterval"]),
             None,
         )
         if max_interval_ref:

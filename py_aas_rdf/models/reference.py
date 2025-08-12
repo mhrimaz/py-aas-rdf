@@ -52,26 +52,26 @@ class Reference(BaseModel, RDFiable):
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["Reference"]))
 
-        graph.add((node, AASNameSpace.AAS["Reference/type"], AASNameSpace.AAS[f"ReferenceTypes/{self.type.value}"]))
+        graph.add((node, AASNameSpace.AAS["Reference_type"], AASNameSpace.AAS[f"ReferenceTypes/{self.type.value}"]))
         for idx, key in enumerate(self.keys):
             sub_graph, created_key_node = key.to_rdf(graph=graph, parent_node=node)
             graph.add((created_key_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-            graph.add((node, AASNameSpace.AAS["Reference/keys"], created_key_node))
+            graph.add((node, AASNameSpace.AAS["Reference_keys"], created_key_node))
         if self.referredSemanticId:
             sub_graph, created_reference_node = self.referredSemanticId.to_rdf(graph=graph, parent_node=node)
-            graph.add((node, AASNameSpace.AAS["Reference/referredSemanticId"], created_reference_node))
+            graph.add((node, AASNameSpace.AAS["Reference_referredSemanticId"], created_reference_node))
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         payload = {}
         key_type: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference/type"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference_type"]),
             None,
         )
         payload["type"] = key_type[key_type.rfind("/") + 1 :]
 
-        keys_content = graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference/keys"])
+        keys_content = graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference_keys"])
         keys = {}
         for key in keys_content:
             created_key: Key = Key.from_rdf(graph, key)
@@ -79,7 +79,7 @@ class Reference(BaseModel, RDFiable):
             keys[key_index_ref.value] = created_key
             # TODO: make sure about the order
         referred_semantic_id: rdflib.IdentifiedNode = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference/referredSemanticId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference_referredSemanticId"]),
             None,
         )
         referred_semantic_id_created = None

@@ -56,14 +56,14 @@ class Blob(DataElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["Blob/value"],
+                    AASNameSpace.AAS["Blob_value"],
                     rdflib.Literal(self.value, datatype=rdflib.XSD.base64Binary),
                 )
             )
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["Blob/contentType"],
+                AASNameSpace.AAS["Blob_contentType"],
                 rdflib.Literal(self.contentType),
             )
         )
@@ -73,14 +73,14 @@ class Blob(DataElement):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Blob":
         value_value = None
         value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob_value"]),
             None,
         )
         if value_ref:
             value_value = value_ref
         content_type_value = None
         content_type_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob/contentType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob_contentType"]),
             None,
         )
         if content_type_ref:

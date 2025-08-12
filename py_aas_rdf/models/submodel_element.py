@@ -66,7 +66,7 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
                 graph.add((created_node, RDF.type, AASNameSpace.AAS["Qualifier"]))
                 graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 Qualifier.append_as_rdf(qualifier_ref, graph, created_node)
-                graph.add((node, AASNameSpace.AAS["Qualifiable/qualifiers"], created_node))
+                graph.add((node, AASNameSpace.AAS["Qualifiable_qualifiers"], created_node))
         # HasDataSpecification
         HasDataSpecification.append_as_rdf(self, graph, node)
 
@@ -83,7 +83,7 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
         has_data_specification = HasDataSpecification.from_rdf(graph, subject)
 
         qualifiers_value = []
-        for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable/qualifiers"]):
+        for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable_qualifiers"]):
             qualifier = Qualifier.from_rdf(graph, qualifier_uriref)
             qualifiers_value.append(qualifier)
         if len(qualifiers_value) == 0:

@@ -92,8 +92,8 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["HasKind/kind"],
-                    rdflib.URIRef(AASNameSpace.AAS[f"ModellingKind/{self.kind.value}"]),
+                    AASNameSpace.AAS["HasKind_kind"],
+                    rdflib.URIRef(AASNameSpace.AAS[f"ModellingKind_{self.kind.value}"]),
                 )
             )
         # Qualifiable
@@ -103,7 +103,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
                 graph.add((created_node, RDF.type, AASNameSpace.AAS["Qualifier"]))
                 graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 Qualifier.append_as_rdf(qualifier_ref, graph, created_node)
-                graph.add((node, AASNameSpace.AAS["Qualifiable/qualifiers"], created_node))
+                graph.add((node, AASNameSpace.AAS["Qualifiable_qualifiers"], created_node))
         # submodelElements
         if self.submodelElements:
             for idx, submodel_element in enumerate(self.submodelElements):
@@ -124,7 +124,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
                     graph, node, prefix_uri=common_pref, base_uri=base_uri, id_strategy=id_strategy
                 )
                 graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["Submodel/submodelElements"], created_node))
+                graph.add((node, AASNameSpace.AAS["Submodel_submodelElements"], created_node))
         return graph, node
 
     @staticmethod
@@ -139,14 +139,14 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         # HasKind
         kind_value = None
         kind_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["HasKind/kind"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["HasKind_kind"]),
             None,
         )
         if kind_uriref:
             kind_value = ModellingKind[kind_uriref[kind_uriref.rfind("/") + 1 :]]
         # Qualifiable
         qualifiers_value = []
-        for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable/qualifiers"]):
+        for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable_qualifiers"]):
             qualifier = Qualifier.from_rdf(graph, qualifier_uriref)
             qualifiers_value.append(qualifier)
         if len(qualifiers_value) == 0:
@@ -155,7 +155,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         submodel_elements_value = []
 
         for submodel_element_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["Submodel/submodelElements"]
+            subject=subject, predicate=AASNameSpace.AAS["Submodel_submodelElements"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
             submodel_elements_value.append(element)

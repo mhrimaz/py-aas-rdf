@@ -78,12 +78,12 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
             _, created_node = self.derivedFrom.to_rdf(
                 graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
             )
-            graph.add((node, AASNameSpace.AAS["AssetAdministrationShell/derivedFrom"], created_node))
+            graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_derivedFrom"], created_node))
 
         _, created_asset_info_node = self.assetInformation.to_rdf(
             graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
         )
-        graph.add((node, AASNameSpace.AAS["AssetAdministrationShell/assetInformation"], created_asset_info_node))
+        graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_assetInformation"], created_asset_info_node))
 
         if self.submodels and len(self.submodels) > 0:
             for idx, submodel_ref in enumerate(self.submodels):
@@ -91,7 +91,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
                     graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
                 )
                 graph.add((created_ref_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["AssetAdministrationShell/submodels"], created_ref_node))
+                graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_submodels"], created_ref_node))
 
         return graph, node
 
@@ -105,7 +105,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         derived_from_value = None
         derived_from_value_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell/derivedFrom"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_derivedFrom"]),
             None,
         )
         if derived_from_value_uriref:
@@ -113,7 +113,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         asset_information_value = None
         asset_information_value_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell/assetInformation"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_assetInformation"]),
             None,
         )
         if asset_information_value_uriref:
@@ -121,7 +121,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         submodels_value = []
         for submodel_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell/submodels"]
+            subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_submodels"]
         ):
             submodel_ref = Reference.from_rdf(graph, submodel_uriref)
             submodels_value.append(submodel_ref)

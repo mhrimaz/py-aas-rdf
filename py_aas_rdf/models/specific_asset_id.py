@@ -61,11 +61,11 @@ class SpecificAssetId(HasSemantics, RDFiable):
         # HasSemantics
         HasSemantics.append_as_rdf(self, graph, node)
 
-        graph.add((node, AASNameSpace.AAS["SpecificAssetId/name"], rdflib.Literal(self.name)))
-        graph.add((node, AASNameSpace.AAS["SpecificAssetId/value"], rdflib.Literal(self.value)))
+        graph.add((node, AASNameSpace.AAS["SpecificAssetId_name"], rdflib.Literal(self.name)))
+        graph.add((node, AASNameSpace.AAS["SpecificAssetId_value"], rdflib.Literal(self.value)))
         if self.externalSubjectId:
             _, created_node = self.externalSubjectId.to_rdf(graph, node)
-            graph.add((node, AASNameSpace.AAS["SpecificAssetId/externalSubjectId"], created_node))
+            graph.add((node, AASNameSpace.AAS["SpecificAssetId_externalSubjectId"], created_node))
 
         return graph, node
 
@@ -74,13 +74,13 @@ class SpecificAssetId(HasSemantics, RDFiable):
         name_value = None
 
         name_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId/name"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId_name"]), None
         )
         if name_ref:
             name_value = name_ref.value
 
         value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId/value"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId_value"]), None
         )
         value_value = None
         if value_ref:
@@ -88,7 +88,7 @@ class SpecificAssetId(HasSemantics, RDFiable):
 
         external_subject_id_value = None
         external_subject_id_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId/externalSubjectId"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SpecificAssetId_externalSubjectId"]), None
         )
         if external_subject_id_ref:
             external_subject_id_value = Reference.from_rdf(graph, external_subject_id_ref)

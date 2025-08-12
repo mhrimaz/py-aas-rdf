@@ -41,8 +41,8 @@ class RelationshipElementAbstract(SubmodelElement):
 
         _, first_node = self.first.to_rdf(created_graph, parent_node)
         _, second_node = self.second.to_rdf(created_graph, parent_node)
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/first"], first_node))
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement/second"], second_node))
+        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement_first"], first_node))
+        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement_second"], second_node))
         return created_graph, created_node
 
     @staticmethod
@@ -50,14 +50,14 @@ class RelationshipElementAbstract(SubmodelElement):
         submodel_element = SubmodelElement.from_rdf(graph, subject)
         first_value = None
         first_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement/first"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement_first"]),
             None,
         )
         if first_ref:
             first_value = Reference.from_rdf(graph, first_ref)
         second_value = None
         second_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement/second"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement_second"]),
             None,
         )
         if second_ref:

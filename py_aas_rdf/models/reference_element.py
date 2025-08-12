@@ -51,14 +51,14 @@ class ReferenceElement(DataElement):
         created_graph.add((created_node, RDF.type, AASNameSpace.AAS["ReferenceElement"]))
         if self.value:
             _, created_sub_node = self.value.to_rdf(created_graph, created_node)
-            created_graph.add((created_node, AASNameSpace.AAS["ReferenceElement/value"], created_sub_node))
+            created_graph.add((created_node, AASNameSpace.AAS["ReferenceElement_value"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "ReferenceElement":
         value_value = None
         value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["ReferenceElement/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["ReferenceElement_value"]),
             None,
         )
         if value_ref:

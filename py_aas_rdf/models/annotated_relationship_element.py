@@ -69,7 +69,7 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
                 )
                 created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
                 created_graph.add(
-                    (created_node, AASNameSpace.AAS["AnnotatedRelationshipElement/annotations"], created_sub_node)
+                    (created_node, AASNameSpace.AAS["AnnotatedRelationshipElement_annotations"], created_sub_node)
                 )
         return created_graph, created_node
 
@@ -80,7 +80,7 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         for annotation_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["AnnotatedRelationshipElement/annotations"]
+            subject=subject, predicate=AASNameSpace.AAS["AnnotatedRelationshipElement_annotations"]
         ):
             element = from_unknown_rdf(graph, annotation_uriref)
             annotations_value.append(element)

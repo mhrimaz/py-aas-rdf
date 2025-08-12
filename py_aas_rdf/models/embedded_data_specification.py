@@ -51,14 +51,14 @@ class EmbeddedDataSpecification(BaseModel, RDFiable):
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["EmbeddedDataSpecification"]))
         _, created_data_specification_node = self.dataSpecification.to_rdf(graph=graph, parent_node=node)
         graph.add(
-            (node, AASNameSpace.AAS["EmbeddedDataSpecification/dataSpecification"], created_data_specification_node)
+            (node, AASNameSpace.AAS["EmbeddedDataSpecification_dataSpecification"], created_data_specification_node)
         )
 
         _, created_content_node = self.dataSpecificationContent.to_rdf(graph=graph, parent_node=node)
         graph.add(
             (
                 node,
-                AASNameSpace.AAS["EmbeddedDataSpecification/dataSpecificationContent"],
+                AASNameSpace.AAS["EmbeddedDataSpecification_dataSpecificationContent"],
                 created_content_node,
             )
         )
@@ -70,14 +70,14 @@ class EmbeddedDataSpecification(BaseModel, RDFiable):
         # TODO: use type as discriminator
 
         data_specification_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["EmbeddedDataSpecification/dataSpecification"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["EmbeddedDataSpecification_dataSpecification"]),
             None,
         )
         data_specification = Reference.from_rdf(graph, data_specification_ref)
         content = None
         content_ref: rdflib.URIRef = next(
             graph.objects(
-                subject=subject, predicate=AASNameSpace.AAS["EmbeddedDataSpecification/dataSpecificationContent"]
+                subject=subject, predicate=AASNameSpace.AAS["EmbeddedDataSpecification_dataSpecificationContent"]
             ),
             None,
         )

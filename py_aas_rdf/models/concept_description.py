@@ -76,7 +76,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
             for idx, is_case in enumerate(self.isCaseOf):
                 _, created_node = is_case.to_rdf(graph, node, prefix_uri, base_uri, id_strategy)
                 graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["ConceptDescription/isCaseOf"], created_node))
+                graph.add((node, AASNameSpace.AAS["ConceptDescription_isCaseOf"], created_node))
         return graph, node
 
     @staticmethod
@@ -88,7 +88,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
         hasDataSpecification = HasDataSpecification.from_rdf(graph, subject)
 
         isCaseOf = []
-        for is_case_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["ConceptDescription/isCaseOf"]):
+        for is_case_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["ConceptDescription_isCaseOf"]):
             isCaseOf.append(Reference.from_rdf(graph, is_case_ref))
         if len(isCaseOf) == 0:
             isCaseOf = None

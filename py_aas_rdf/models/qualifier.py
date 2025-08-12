@@ -52,23 +52,23 @@ class Qualifier(HasSemantics):
             graph.add(
                 (
                     parent_node,
-                    AASNameSpace.AAS["Qualifier/kind"],
-                    AASNameSpace.AAS[f"QualifierKind/{instance.kind.value}"],
+                    AASNameSpace.AAS["Qualifier_kind"],
+                    AASNameSpace.AAS[f"QualifierKind_{instance.kind.value}"],
                 )
             )
-        graph.add((parent_node, AASNameSpace.AAS["Qualifier/type"], rdflib.Literal(instance.type)))
+        graph.add((parent_node, AASNameSpace.AAS["Qualifier_type"], rdflib.Literal(instance.type)))
         graph.add(
             (
                 parent_node,
-                AASNameSpace.AAS["Qualifier/valueType"],
-                AASNameSpace.AAS[f"DataTypeDefXsd/{instance.valueType.name}"],
+                AASNameSpace.AAS["Qualifier_valueType"],
+                AASNameSpace.AAS[f"DataTypeDefXsd_{instance.valueType.name}"],
             )
         )
         if instance.value:
-            graph.add((parent_node, AASNameSpace.AAS["Qualifier/value"], rdflib.Literal(instance.value)))
+            graph.add((parent_node, AASNameSpace.AAS["Qualifier_value"], rdflib.Literal(instance.value)))
         if instance.valueId:
             _, created_node = instance.valueId.to_rdf(graph, parent_node)
-            graph.add((parent_node, AASNameSpace.AAS["Qualifier/valueId"], created_node))
+            graph.add((parent_node, AASNameSpace.AAS["Qualifier_valueId"], created_node))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Qualifier":
@@ -77,35 +77,35 @@ class Qualifier(HasSemantics):
 
         kind_value = None
         kind_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier/kind"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_kind"]),
             None,
         )
         if kind_value_ref:
             kind_value = QualifierKind[kind_value_ref[kind_value_ref.rfind("/") + 1 :]]
         type_value = None
         type_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier/type"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_type"]),
             None,
         )
         if type_value_ref:
             type_value = type_value_ref.value
         value_type_value = None
         value_type_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier/valueType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_valueType"]),
             None,
         )
         if value_type_value_ref:
             value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("/") + 1 :]]
         value_value = None
         value_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier/value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_value"]),
             None,
         )
         if value_value_ref:
             value_value = value_value_ref.value
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier/valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_valueId"]),
             None,
         )
         if value_id_value_ref:

@@ -49,17 +49,17 @@ def find_child_element_by_id_short(graph: rdflib.Graph, parent_node: rdflib.URIR
     # TODO: does not handle element within SML with index reference.
     id_short_literal = rdflib.Literal(key_value)
     # Elements within Submodel
-    for child_node in graph.objects(parent_node, AASNameSpace.AAS["Submodel/submodelElements"]):
-        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["Submodel_submodelElements"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable_idShort"])
         if child_id_short == id_short_literal:
             return child_node  # Found the matching child
     # Elements within Submodel
-    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection/value"]):
-        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection_value"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable_idShort"])
         if child_id_short == id_short_literal:
             return child_node  # Found the matching child
-    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection/value"]):
-        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable/idShort"])
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS["SubmodelElementCollection_value"]):
+        child_id_short = graph.value(child_node, AASNameSpace.AAS["Referable_idShort"])
         if child_id_short == id_short_literal:
             return child_node  # Found the matching child
     return None
@@ -121,55 +121,55 @@ class Environment(BaseModel, RDFiable):
                 _, created_sub_node = submodel.to_rdf(graph, node, prefix_uri=prefix_uri, base_uri=base_uri,
                                                       id_strategy=id_strategy)
 
-                graph.add((node, AASNameSpace.AAS["Environment/submodels"], created_sub_node))
+                graph.add((node, AASNameSpace.AAS["Environment_submodels"], created_sub_node))
 
         if self.assetAdministrationShells:
             for idx, aas in enumerate(self.assetAdministrationShells):
                 _, created_sub_node = aas.to_rdf(graph, node, prefix_uri=prefix_uri, base_uri=base_uri,
                                                  id_strategy=id_strategy)
 
-                graph.add((node, AASNameSpace.AAS["Environment/assetAdministrationShells"], created_sub_node))
+                graph.add((node, AASNameSpace.AAS["Environment_assetAdministrationShells"], created_sub_node))
 
         if self.conceptDescriptions:
             for idx, cd in enumerate(self.conceptDescriptions):
                 _, created_sub_node = cd.to_rdf(graph, node, prefix_uri=prefix_uri, base_uri=base_uri,
                                                 id_strategy=id_strategy)
 
-                graph.add((node, AASNameSpace.AAS["Environment/conceptDescriptions"], created_sub_node))
+                graph.add((node, AASNameSpace.AAS["Environment_conceptDescriptions"], created_sub_node))
 
         # Resolve entities and construct shortcuts
         if shortcuts:
             # Link from Submodel to AAS (and vice versa)
             for idx, aas in enumerate(self.assetAdministrationShells):
-                aas_node = next(graph.subjects(AASNameSpace.AAS["Identifiable/id"], rdflib.Literal(aas.id)),
+                aas_node = next(graph.subjects(AASNameSpace.AAS["Identifiable_id"], rdflib.Literal(aas.id)),
                                 None)
                 for submodel_ref in aas.submodels:
                     submodel_id = submodel_ref.keys[0].value
                     submodel_node = next(
-                        graph.subjects(AASNameSpace.AAS["Identifiable/id"], rdflib.Literal(submodel_id)), None)
+                        graph.subjects(AASNameSpace.AAS["Identifiable_id"], rdflib.Literal(submodel_id)), None)
                     if submodel_node:
-                        graph.add((aas_node, AASNameSpace.AAS["Shortcuts/submodel"], submodel_node))
-                        graph.add((submodel_node, AASNameSpace.AAS["Shortcuts/assetAdministrationShell"], aas_node))
+                        graph.add((aas_node, AASNameSpace.AAS["Shortcuts_submodel"], submodel_node))
+                        graph.add((submodel_node, AASNameSpace.AAS["Shortcuts_assetAdministrationShell"], aas_node))
 
             # Link all semanticId to ConceptDescription
-            for element_node, semantic_id_node in graph.subject_objects(AASNameSpace.AAS["HasSemantics/semanticId"]):
+            for element_node, semantic_id_node in graph.subject_objects(AASNameSpace.AAS["HasSemantics_semanticId"]):
                 reference_object = Reference.from_rdf(graph, semantic_id_node)
                 if reference_object.type == ReferenceTypes.ModelReference:
-                    cd_node = next(graph.subjects(AASNameSpace.AAS["Identifiable/id"],
+                    cd_node = next(graph.subjects(AASNameSpace.AAS["Identifiable_id"],
                                                   rdflib.Literal(reference_object.keys[0].value)),
                                    None)
                     if cd_node:
-                        graph.add((element_node, AASNameSpace.AAS["Shortcuts/conceptDescription"], cd_node))
+                        graph.add((element_node, AASNameSpace.AAS["Shortcuts_conceptDescription"], cd_node))
 
                 if reference_object.type == ReferenceTypes.ExternalReference:
                     # ECLASS Has RDF Resrouces
                     if len(reference_object.keys) == 1 and reference_object.keys[0].value.startswith("0173"):
-                        graph.add((element_node, AASNameSpace.AAS["Shortcuts/iec61360-as-rdf"],
+                        graph.add((element_node, AASNameSpace.AAS["Shortcuts_iec61360-as-rdf"],
                                    rdflib.URIRef("https://eclass-cdp.com/rdf/v1/eclass/15-0/" + reference_object.keys[
                                        0].value.replace("#", "-").replace("/", "-"))))
                     if len(reference_object.keys) == 1 and reference_object.keys[0].value.startswith("0112"):
                         unversioned_irdi = reference_object.keys[0].value[0:reference_object.keys[0].value.rfind("#")]
-                        graph.add((element_node, AASNameSpace.AAS["Shortcuts/iec61360-as-rdf"],
+                        graph.add((element_node, AASNameSpace.AAS["Shortcuts_iec61360-as-rdf"],
                                    rdflib.URIRef(
                                        "https://cdd.iec.ch/cdd/iec61360/iec61360.nsf/PropertiesAllVersions/" + unversioned_irdi.replace(
                                            "#", "%23").replace("/", "-"))))
@@ -183,7 +183,7 @@ class Environment(BaseModel, RDFiable):
                     current_object = None
                     # getting the root element which should have an ID
                     current_node = next(
-                        graph.subjects(AASNameSpace.AAS["Identifiable/id"], rdflib.Literal(reference_object.keys[0].value)), None)
+                        graph.subjects(AASNameSpace.AAS["Identifiable_id"], rdflib.Literal(reference_object.keys[0].value)), None)
 
                     # Process Subsequent Keys
                     for i in range(1, len(reference_object.keys)):
@@ -192,7 +192,7 @@ class Environment(BaseModel, RDFiable):
                         if next_node:
                             current_node = next_node
                     if current_node:
-                        graph.add((reference_node,AASNameSpace.AAS["Reference/resolvesTo"],current_node))
+                        graph.add((reference_node,AASNameSpace.AAS["Reference_resolvesTo"],current_node))
 
 
         return graph, node

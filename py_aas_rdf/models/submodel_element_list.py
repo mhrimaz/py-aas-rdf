@@ -77,7 +77,7 @@ class SubmodelElementList(SubmodelElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["SubmodelElementList/orderRelevant"],
+                    AASNameSpace.AAS["SubmodelElementList_orderRelevant"],
                     rdflib.Literal(self.orderRelevant, datatype=rdflib.XSD.boolean),
                 )
             )
@@ -86,14 +86,14 @@ class SubmodelElementList(SubmodelElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["SubmodelElementList/semanticIdListElement"],
+                    AASNameSpace.AAS["SubmodelElementList_semanticIdListElement"],
                     created_sub_node,
                 )
             )
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["SubmodelElementList/typeValueListElement"],
+                AASNameSpace.AAS["SubmodelElementList_typeValueListElement"],
                 AASNameSpace.AAS[f"AasSubmodelElements/{self.typeValueListElement.name}"],
             )
         )
@@ -101,7 +101,7 @@ class SubmodelElementList(SubmodelElement):
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["SubmodelElementList/valueTypeListElement"],
+                    AASNameSpace.AAS["SubmodelElementList_valueTypeListElement"],
                     AASNameSpace.AAS[f"DataTypeDefXsd/{self.valueTypeListElement.name}"],
                 )
             )
@@ -115,7 +115,7 @@ class SubmodelElementList(SubmodelElement):
                     id_strategy=id_strategy,
                 )
                 graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["SubmodelElementList/value"], created_sub_node))
+                graph.add((created_node, AASNameSpace.AAS["SubmodelElementList_value"], created_sub_node))
 
         return created_graph, created_node
 
@@ -124,7 +124,7 @@ class SubmodelElementList(SubmodelElement):
         submodel_element = SubmodelElement.from_rdf(graph, subject)
         order_relevant_value = None
         order_relevant_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/orderRelevant"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList_orderRelevant"]),
             None,
         )
         if order_relevant_ref:

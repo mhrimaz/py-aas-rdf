@@ -69,7 +69,7 @@ class SubmodelElementCollection(SubmodelElement):
                     id_strategy=id_strategy,
                 )
                 graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["SubmodelElementCollection/value"], created_sub_node))
+                graph.add((created_node, AASNameSpace.AAS["SubmodelElementCollection_value"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
@@ -79,7 +79,7 @@ class SubmodelElementCollection(SubmodelElement):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         for submodel_element_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["SubmodelElementCollection/value"]
+            subject=subject, predicate=AASNameSpace.AAS["SubmodelElementCollection_value"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
             submodel_elements_value.append(element)
