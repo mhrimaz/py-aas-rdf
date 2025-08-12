@@ -301,9 +301,11 @@ def test_irdi():
     assert is_irdi("0112-1-a-18582#KAA802#s") == True
     assert is_irdi("0112/2///61360_4#AAD001") == True
 
+
 def test_iri():
     assert str(make_uri("http://example.com/aas1")) == "http://example.com/aas1"
-    assert str(make_uri("0173-1#02-AAA123#001")) == "http://example.com/aas1"
+    assert str(make_uri("0173-1#02-AAA123#001")) == "urn:irdi:0173_1__02_AAA123__001"
+
 
 def test_complex_env_to_rdf():
     payload = Environment(**{

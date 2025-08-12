@@ -135,7 +135,7 @@ class BasicEventElement(EventElement):
             None,
         )
         if direction_ref:
-            direction_value = Direction[direction_ref[direction_ref.rfind("/") + 1 :]]
+            direction_value = Direction[direction_ref[direction_ref.rfind("_") + 1 :]]
 
         state_value = None
         state_ref: rdflib.URIRef = next(
@@ -143,7 +143,7 @@ class BasicEventElement(EventElement):
             None,
         )
         if state_ref:
-            state_value = StateOfEvent[state_ref[state_ref.rfind("/") + 1 :]]
+            state_value = StateOfEvent[state_ref[state_ref.rfind("_") + 1 :]]
 
         message_topic_value = None
         message_topic_ref: rdflib.Literal = next(

@@ -81,7 +81,7 @@ class Qualifier(HasSemantics):
             None,
         )
         if kind_value_ref:
-            kind_value = QualifierKind[kind_value_ref[kind_value_ref.rfind("/") + 1 :]]
+            kind_value = QualifierKind[kind_value_ref[kind_value_ref.rfind("_") + 1 :]]
         type_value = None
         type_value_ref: rdflib.Literal = next(
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_type"]),
@@ -95,7 +95,7 @@ class Qualifier(HasSemantics):
             None,
         )
         if value_type_value_ref:
-            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("/") + 1 :]]
+            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("_") + 1 :]]
         value_value = None
         value_value_ref: rdflib.Literal = next(
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_value"]),

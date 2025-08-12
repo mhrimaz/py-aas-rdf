@@ -127,7 +127,7 @@ class AssetInformation(BaseModel, RDFiable):
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetInformation_assetKind"]), None
         )
         if asset_kind_uriref:
-            asset_kind_value = asset_kind_uriref[asset_kind_uriref.rfind("/") + 1 :]
+            asset_kind_value = asset_kind_uriref[asset_kind_uriref.rfind("_") + 1 :]
 
         asset_type_value = None
         asset_type_uriref: rdflib.Literal = next(

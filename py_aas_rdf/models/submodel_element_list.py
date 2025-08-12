@@ -94,7 +94,7 @@ class SubmodelElementList(SubmodelElement):
             (
                 created_node,
                 AASNameSpace.AAS["SubmodelElementList_typeValueListElement"],
-                AASNameSpace.AAS[f"AasSubmodelElements/{self.typeValueListElement.name}"],
+                AASNameSpace.AAS[f"AasSubmodelElements_{self.typeValueListElement.name}"],
             )
         )
         if self.valueTypeListElement:
@@ -102,7 +102,7 @@ class SubmodelElementList(SubmodelElement):
                 (
                     created_node,
                     AASNameSpace.AAS["SubmodelElementList_valueTypeListElement"],
-                    AASNameSpace.AAS[f"DataTypeDefXsd/{self.valueTypeListElement.name}"],
+                    AASNameSpace.AAS[f"DataTypeDefXsd_{self.valueTypeListElement.name}"],
                 )
             )
         if self.value:
@@ -132,36 +132,36 @@ class SubmodelElementList(SubmodelElement):
 
         semantic_id_list_element_value = None
         semantic_id_list_element_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/semanticIdListElement"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList_semanticIdListElement"]),
             None,
         )
         if semantic_id_list_element_ref:
             semantic_id_list_element_value = Reference.from_rdf(graph, semantic_id_list_element_ref)
         type_value_list_element_value = None
         type_value_list_element_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/typeValueListElement"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList_typeValueListElement"]),
             None,
         )
         if type_value_list_element_ref:
             type_value_list_element_value = AasSubmodelElements[
-                type_value_list_element_ref[type_value_list_element_ref.rfind("/") + 1 :]
+                type_value_list_element_ref[type_value_list_element_ref.rfind("_") + 1 :]
             ]
 
         value_type_list_element_value = None
         value_type_list_element_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/valueTypeListElement"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList_valueTypeListElement"]),
             None,
         )
         if value_type_list_element_ref:
             value_type_list_element_value = DataTypeDefXsd[
-                value_type_list_element_ref[value_type_list_element_ref.rfind("/") + 1 :]
+                value_type_list_element_ref[value_type_list_element_ref.rfind("_") + 1 :]
             ]
 
         value_value = []
         from py_aas_rdf.models.util import from_unknown_rdf
 
         for submodel_element_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList/value"]
+            subject=subject, predicate=AASNameSpace.AAS["SubmodelElementList_value"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
             value_value.append(element)

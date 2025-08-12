@@ -61,7 +61,7 @@ class Extension(HasSemantics, RDFiable):
                 (
                     node,
                     AASNameSpace.AAS["Extension_valueType"],
-                    AASNameSpace.AAS[f"DataTypeDefXsd/{self.valueType.name}"],
+                    AASNameSpace.AAS[f"DataTypeDefXsd_{self.valueType.name}"],
                 )
             )
 
@@ -92,7 +92,7 @@ class Extension(HasSemantics, RDFiable):
         )
         value_type = None
         if value_type_ref:
-            value_type = DataTypeDefXsd[value_type_ref[value_type_ref.rfind("/") + 1 :]]
+            value_type = DataTypeDefXsd[value_type_ref[value_type_ref.rfind("_") + 1 :]]
 
         value = None
         value_ref: rdflib.Literal = next(

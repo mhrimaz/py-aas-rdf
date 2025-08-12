@@ -123,7 +123,7 @@ class Operation(SubmodelElement):
             output_variables_value = None
 
         inoutput_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation/inoutputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_inoutputVariables"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             inoutput_variables_value.append(element)
         if len(inoutput_variables_value) == 0:

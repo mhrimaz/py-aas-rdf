@@ -83,37 +83,6 @@ class Environment(BaseModel, RDFiable):
         if graph is None:
             graph = rdflib.Graph()
             graph.bind("aas", AASNameSpace.AAS)
-            graph.bind("aas-environment", Namespace("https://admin-shell.io/aas/3/0/Environment/"))
-            graph.bind("aas-shortcuts", Namespace("https://admin-shell.io/aas/3/0/Shortcuts/"))
-
-            graph.bind("aas-identifiable", Namespace("https://admin-shell.io/aas/3/0/Identifiable/"))
-            graph.bind("aas-assetadministrationshell",
-                       Namespace("https://admin-shell.io/aas/3/0/AssetAdministrationShell/"))
-            graph.bind("aas-assetinformation", Namespace("https://admin-shell.io/aas/3/0/AssetInformation/"))
-            graph.bind("aas-assetkind", Namespace("https://admin-shell.io/aas/3/0/AssetKind/"))
-            graph.bind("aas-conceptdescription", Namespace("https://admin-shell.io/aas/3/0/ConceptDescription/"))
-            graph.bind("aas-dataspecificationiec61360",
-                       Namespace("https://admin-shell.io/aas/3/0/DataSpecificationIec61360/"))
-            graph.bind("aas-datatypedefxsd", Namespace("https://admin-shell.io/aas/3/0/DataTypeDefXsd/"))
-            graph.bind("aas-keytypes", Namespace("https://admin-shell.io/aas/3/0/KeyTypes/"))
-            graph.bind("aas-submodel", Namespace("https://admin-shell.io/aas/3/0/Submodel/"))
-            graph.bind("aas-specificassetid", Namespace("https://admin-shell.io/aas/3/0/SpecificAssetId/"))
-            graph.bind("aas-reference", Namespace("https://admin-shell.io/aas/3/0/Reference/"))
-            graph.bind("aas-referencetypes", Namespace("https://admin-shell.io/aas/3/0/ReferenceTypes/"))
-            graph.bind("aas-resource", Namespace("https://admin-shell.io/aas/3/0/Resource/"))
-            graph.bind("aas-modellingkind", Namespace("https://admin-shell.io/aas/3/0/ModellingKind/"))
-            graph.bind("aas-haskind", Namespace("https://admin-shell.io/aas/3/0/HasKind/"))
-            graph.bind("aas-hassemantics", Namespace("https://admin-shell.io/aas/3/0/HasSemantics/"))
-            graph.bind("aas-referable", Namespace("https://admin-shell.io/aas/3/0/Referable/"))
-            graph.bind("aas-property", Namespace("https://admin-shell.io/aas/3/0/Property/"))
-            graph.bind("aas-key", Namespace("https://admin-shell.io/aas/3/0/Key/"))
-            graph.bind("aas-abstractlangstring", Namespace("https://admin-shell.io/aas/3/0/AbstractLangString/"))
-            graph.bind("aas-qualifier", Namespace("https://admin-shell.io/aas/3/0/Qualifier/"))
-            graph.bind("aas-administrativeinformation",
-                       Namespace("https://admin-shell.io/aas/3/0/AdministrativeInformation/"))
-            graph.bind("aas-submodelelementcollection",
-                       Namespace("https://admin-shell.io/aas/3/0/SubmodelElementCollection/"))
-            graph.bind("aas-qualifierkind", Namespace("https://admin-shell.io/aas/3/0/QualifierKind/"))
         node = rdflib.BNode()
         graph.add((node, RDF.type, AASNameSpace.AAS["Environment"]))
         if self.submodels:

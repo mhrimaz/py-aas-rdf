@@ -143,7 +143,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
             None,
         )
         if kind_uriref:
-            kind_value = ModellingKind[kind_uriref[kind_uriref.rfind("/") + 1 :]]
+            kind_value = ModellingKind[kind_uriref[kind_uriref.rfind("_") + 1 :]]
         # Qualifiable
         qualifiers_value = []
         for qualifier_uriref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifiable_qualifiers"]):

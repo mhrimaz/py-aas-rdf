@@ -84,7 +84,7 @@ class Range(DataElement):
             None,
         )
         if value_type_value_ref:
-            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("/") + 1 :]]
+            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("_") + 1 :]]
 
         min_value = None
         min_ref: rdflib.Literal = next(

@@ -84,7 +84,7 @@ class AdministrativeInformation(HasDataSpecification):
             creator_value = Reference.from_rdf(graph, creator_ref)
         template_id_value = None
         template_id_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation/templateId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation_templateId"]),
             None,
         )
         if template_id_ref:

@@ -52,7 +52,7 @@ class Reference(BaseModel, RDFiable):
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["Reference"]))
 
-        graph.add((node, AASNameSpace.AAS["Reference_type"], AASNameSpace.AAS[f"ReferenceTypes/{self.type.value}"]))
+        graph.add((node, AASNameSpace.AAS["Reference_type"], AASNameSpace.AAS[f"ReferenceTypes_{self.type.value}"]))
         for idx, key in enumerate(self.keys):
             sub_graph, created_key_node = key.to_rdf(graph=graph, parent_node=node)
             graph.add((created_key_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
@@ -69,7 +69,7 @@ class Reference(BaseModel, RDFiable):
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference_type"]),
             None,
         )
-        payload["type"] = key_type[key_type.rfind("/") + 1 :]
+        payload["type"] = key_type[key_type.rfind("_") + 1 :]
 
         keys_content = graph.objects(subject=subject, predicate=AASNameSpace.AAS["Reference_keys"])
         keys = {}

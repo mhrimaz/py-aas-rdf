@@ -78,7 +78,7 @@ class Key(BaseModel, RDFiable):
             graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key_value"]),
             None,
         )
-        payload["type"] = key_type[key_type.rfind("/") + 1 :]
+        payload["type"] = key_type[key_type.rfind("_") + 1 :]
         payload["value"] = value.value
         return Key(**payload)
 

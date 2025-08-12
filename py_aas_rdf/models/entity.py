@@ -113,7 +113,7 @@ class Entity(SubmodelElement):
             None,
         )
         if entity_type_ref:
-            entity_type_value = EntityType[entity_type_ref[entity_type_ref.rfind("/") + 1 :]]
+            entity_type_value = EntityType[entity_type_ref[entity_type_ref.rfind("_") + 1 :]]
 
         global_asset_id_value = None
         global_asset_id_ref: rdflib.Literal = next(
