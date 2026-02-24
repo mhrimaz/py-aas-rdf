@@ -49,30 +49,31 @@ class Extension(HasSemantics, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
 
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["Extension"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["Extension"]))
         # HasSemantics
         HasSemantics.append_as_rdf(self, graph, node)
-        graph.add((node, AASNameSpace.AAS["Extension_name"], rdflib.Literal(self.name)))
-        if self.valueType:
+        graph.add((node, AASNameSpace.AAS_3["name"], rdflib.Literal(self.name)))
+        if self.valueType != None:
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["Extension_valueType"],
-                    AASNameSpace.AAS[f"DataTypeDefXsd_{self.valueType.name}"],
+                    AASNameSpace.AAS_3["valueType"],
+                    rdflib.XSD[self.valueType.value.replace("xs:", "")],
                 )
             )
 
-        if self.value:
-            graph.add((node, AASNameSpace.AAS["Extension_value"], rdflib.Literal(self.value)))
-
+        if self.value != None:
+            graph.add((node, AASNameSpace.AAS_3["value"],
+                       rdflib.Literal(self.value, datatype=rdflib.XSD[self.valueType.value.replace("xs:", "")],
+                                      normalize=False)))
         if self.refersTo and len(self.refersTo) > 0:
             for idx, refer in enumerate(self.refersTo):
                 _, created_node = refer.to_rdf(graph=graph, parent_node=node)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["Extension_refersTo"], created_node))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((node, AASNameSpace.AAS_3["refersTo"], created_node))
 
         return graph, node
 
@@ -83,31 +84,34 @@ class Extension(HasSemantics, RDFiable):
         hasSemantics = HasSemantics.from_rdf(graph, subject)
 
         name: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension_name"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["name"]),
             None,
         )
-        value_type_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension_valueType"]),
-            None,
-        )
+
         value_type = None
-        if value_type_ref:
-            value_type = DataTypeDefXsd[value_type_ref[value_type_ref.rfind("_") + 1 :]]
+        value_type_value_ref: rdflib.URIRef = next(
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueType"]),
+            None,
+        )
+        if value_type_value_ref:
+            local_part = str(value_type_value_ref).split('#')[-1]
+            xs_value = f"xs:{local_part}"
+            value_type = DataTypeDefXsd(xs_value)
 
         value = None
         value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
-        if value_ref:
-            value = value_ref.value
+        if value_ref != None:
+            value = str(value_ref)
 
         refersTo_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension_refersTo"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["refersTo"]),
             None,
         )
         refersTo = []
-        if refersTo_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Extension_refersTo"]):
+        if refersTo_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["refersTo"]):
             refersTo.append(Reference.from_rdf(graph, refersTo_ref))
 
         if len(refersTo) == 0:

@@ -48,12 +48,12 @@ class OperationVariable(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
 
         node = rdflib.BNode()
-        graph.add((node, RDF.type, AASNameSpace.AAS["OperationVariable"]))
+        graph.add((node, RDF.type, AASNameSpace.AAS_3["OperationVariable"]))
         _, created_node = self.value.to_rdf(graph, node)
-        graph.add((node, AASNameSpace.AAS["OperationVariable_value"], created_node))
+        graph.add((node, AASNameSpace.AAS_3["value"], created_node))
         return graph, node
 
     @staticmethod
@@ -62,7 +62,7 @@ class OperationVariable(BaseModel, RDFiable):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         value_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["OperationVariable_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
         if value_value_ref:
@@ -86,44 +86,44 @@ class Operation(SubmodelElement):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
 
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Operation"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["Operation"]))
         if self.inputVariables:
             for idx, input_variable in enumerate(self.inputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
-                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation_inputVariables"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS_3["inputVariable"], created_sub_node))
 
         if self.outputVariables:
             for idx, input_variable in enumerate(self.outputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
-                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation_outputVariables"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS_3["outputVariable"], created_sub_node))
         if self.inoutputVariables:
             for idx, input_variable in enumerate(self.inoutputVariables):
                 _, created_sub_node = input_variable.to_rdf(created_graph, created_node)
-                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                created_graph.add((created_node, AASNameSpace.AAS["Operation_inoutputVariables"], created_sub_node))
+                created_graph.add((created_sub_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                created_graph.add((created_node, AASNameSpace.AAS_3["inoutputVariable"], created_sub_node))
 
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Operation":
         input_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_inputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["inputVariable"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             input_variables_value.append(element)
         if len(input_variables_value) == 0:
             input_variables_value = None
 
         output_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_outputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["outputVariable"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             output_variables_value.append(element)
         if len(output_variables_value) == 0:
             output_variables_value = None
 
         inoutput_variables_value = []
-        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Operation_inoutputVariables"]):
+        for variable_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["inoutputVariable"]):
             element = OperationVariable.from_rdf(graph, variable_ref)
             inoutput_variables_value.append(element)
         if len(inoutput_variables_value) == 0:

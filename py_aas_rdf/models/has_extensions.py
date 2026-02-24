@@ -40,14 +40,14 @@ class HasExtensions(BaseModel):
         if instance.extensions and len(instance.extensions) > 0:
             for idx, extension in enumerate(instance.extensions):
                 _, created_node = extension.to_rdf(graph, parent_node)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((parent_node, AASNameSpace.AAS["HasExtensions_extensions"], created_node))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((parent_node, AASNameSpace.AAS_3["extension"], created_node))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         extensions = []
 
-        for extension_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["HasExtensions_extensions"]):
+        for extension_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["extension"]):
             extensions.append(Extension.from_rdf(graph, extension_ref))
 
         if len(extensions) == 0:

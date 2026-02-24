@@ -39,22 +39,22 @@ class AdministrativeInformation(HasDataSpecification):
     @staticmethod
     def append_as_rdf(instance: "AdministrativeInformation", graph: rdflib.Graph, parent_node: rdflib.IdentifiedNode):
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["AdministrativeInformation"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["AdministrativeInformation"]))
         HasDataSpecification.append_as_rdf(instance, graph, node)
         if instance.version:
-            graph.add((node, AASNameSpace.AAS["AdministrativeInformation_version"], rdflib.Literal(instance.version)))
+            graph.add((node, AASNameSpace.AAS_3["version"], rdflib.Literal(instance.version)))
         if instance.revision:
-            graph.add((node, AASNameSpace.AAS["AdministrativeInformation_revision"], rdflib.Literal(instance.revision)))
+            graph.add((node, AASNameSpace.AAS_3["revision"], rdflib.Literal(instance.revision)))
         if instance.creator:
             _, created_creator_node = instance.creator.to_rdf(graph, node)
-            graph.add((node, AASNameSpace.AAS["AdministrativeInformation_creator"], created_creator_node))
+            graph.add((node, AASNameSpace.AAS_3["creator"], created_creator_node))
 
         if instance.templateId:
             graph.add(
-                (node, AASNameSpace.AAS["AdministrativeInformation_templateId"], rdflib.Literal(instance.templateId))
+                (node, AASNameSpace.AAS_3["templateId"], rdflib.Literal(instance.templateId))
             )
 
-        graph.add((parent_node, AASNameSpace.AAS["Identifiable_administration"], node))
+        graph.add((parent_node, AASNameSpace.AAS_3["administration"], node))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
@@ -63,28 +63,28 @@ class AdministrativeInformation(HasDataSpecification):
 
         version_value = None
         version_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation_version"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["version"]),
             None,
         )
         if version_ref:
             version_value = version_ref.value
         revision_value = None
         revision_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation_revision"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["revision"]),
             None,
         )
         if revision_ref:
             revision_value = revision_ref.value
         creator_value = None
         creator_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation_creator"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["creator"]),
             None,
         )
         if creator_ref:
             creator_value = Reference.from_rdf(graph, creator_ref)
         template_id_value = None
         template_id_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AdministrativeInformation_templateId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["templateId"]),
             None,
         )
         if template_id_ref:

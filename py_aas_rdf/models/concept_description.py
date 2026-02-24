@@ -51,7 +51,8 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
             graph.bind("myaas", base_uri)
 
         if id_strategy == "base64-url-encode":
@@ -63,7 +64,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
                 node = rdflib.URIRef(f"urn:irdi:{url_encode(self.id)}")
             else:
                 node = rdflib.URIRef(f"{url_encode(self.id)}")
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["ConceptDescription"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["ConceptDescription"]))
 
         # Identifiable
         # TODO: find a way to refactor
@@ -75,8 +76,16 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
         if self.isCaseOf and len(self.isCaseOf) > 0:
             for idx, is_case in enumerate(self.isCaseOf):
                 _, created_node = is_case.to_rdf(graph, node, prefix_uri, base_uri, id_strategy)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["ConceptDescription_isCaseOf"], created_node))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((node, AASNameSpace.AAS_3["isCaseOf"], created_node))
+        # see https://github.com/admin-shell-io/aas-specs-metamodel/issues/615
+        graph.add(
+            (
+                node,
+                AASNameSpace.AAS_3["modelVersion"],
+                rdflib.Literal("3.1"),
+            )
+        )
         return graph, node
 
     @staticmethod
@@ -88,7 +97,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
         hasDataSpecification = HasDataSpecification.from_rdf(graph, subject)
 
         isCaseOf = []
-        for is_case_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["ConceptDescription_isCaseOf"]):
+        for is_case_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["isCaseOf"]):
             isCaseOf.append(Reference.from_rdf(graph, is_case_ref))
         if len(isCaseOf) == 0:
             isCaseOf = None

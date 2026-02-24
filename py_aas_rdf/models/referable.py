@@ -48,16 +48,16 @@ class Referable(HasExtensions):
         HasExtensions.append_as_rdf(instance, graph, parent_node)
 
         if instance.category:
-            graph.add((parent_node, AASNameSpace.AAS["Referable_category"], rdflib.Literal(instance.category)))
+            graph.add((parent_node, AASNameSpace.AAS_3["category"], rdflib.Literal(instance.category)))
         if instance.idShort:
-            graph.add((parent_node, AASNameSpace.AAS["Referable_idShort"], rdflib.Literal(instance.idShort)))
+            graph.add((parent_node, AASNameSpace.AAS_3["idShort"], rdflib.Literal(instance.idShort)))
         if instance.displayName:
             for idx, display_name_lan in enumerate(instance.displayName):
-                graph.add((parent_node, AASNameSpace.AAS["Referable_displayName"], rdflib.Literal(display_name_lan.text,lang=display_name_lan.language)))
+                graph.add((parent_node, AASNameSpace.AAS_3["displayName"], rdflib.Literal(display_name_lan.text, lang=display_name_lan.language)))
 
         if instance.description:
             for idx, description_lan in enumerate(instance.description):
-                graph.add((parent_node, AASNameSpace.AAS["Referable_description"], rdflib.Literal(description_lan.text,lang=description_lan.language)))
+                graph.add((parent_node, AASNameSpace.AAS_3["description"], rdflib.Literal(description_lan.text, lang=description_lan.language)))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
@@ -66,7 +66,7 @@ class Referable(HasExtensions):
 
         category_value = None
         category_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable_category"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["category"]),
             None,
         )
         if category_ref:
@@ -74,14 +74,14 @@ class Referable(HasExtensions):
 
         id_short_value = None
         id_short_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable_idShort"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["idShort"]),
             None,
         )
         if id_short_ref:
             id_short_value = id_short_ref.value
 
         display_name_value = []
-        for display_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable_displayName"]):
+        for display_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["displayName"]):
 
             display_name_value.append(LangStringNameType(language=display_ref.language, text=display_ref.value))
 
@@ -89,9 +89,7 @@ class Referable(HasExtensions):
             display_name_value = None
 
         description_value = []
-        for description_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS["Referable_description"]):
-
-
+        for description_ref in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["description"]):
             description_value.append(LangStringTextType(language=description_ref.language, text=description_ref.value))
 
         if len(description_value) == 0:

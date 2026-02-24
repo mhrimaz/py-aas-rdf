@@ -52,7 +52,7 @@ class SubmodelElementCollection(SubmodelElement):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
 
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["SubmodelElementCollection"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["SubmodelElementCollection"]))
         if self.value:
             for idx, submodel_element in enumerate(self.value):
                 # headache
@@ -68,8 +68,8 @@ class SubmodelElementCollection(SubmodelElement):
                     base_uri=base_uri,
                     id_strategy=id_strategy,
                 )
-                graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((created_node, AASNameSpace.AAS["SubmodelElementCollection_value"], created_sub_node))
+                graph.add((created_sub_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((created_node, AASNameSpace.AAS_3["value"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
@@ -79,7 +79,7 @@ class SubmodelElementCollection(SubmodelElement):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         for submodel_element_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["SubmodelElementCollection_value"]
+            subject=subject, predicate=AASNameSpace.AAS_3["value"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
             submodel_elements_value.append(element)

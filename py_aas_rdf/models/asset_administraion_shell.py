@@ -52,7 +52,8 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
             graph.bind("myaas", base_uri)
 
         if id_strategy == "base64-url-encode":
@@ -65,7 +66,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
             else:
                 node = rdflib.URIRef(f"{url_encode(self.id)}")
 
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["AssetAdministrationShell"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["AssetAdministrationShell"]))
 
         # Identifiable
         # TODO: find a way to refactor
@@ -78,21 +79,28 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
             _, created_node = self.derivedFrom.to_rdf(
                 graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
             )
-            graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_derivedFrom"], created_node))
+            graph.add((node, AASNameSpace.AAS_3["derivedFrom"], created_node))
 
         _, created_asset_info_node = self.assetInformation.to_rdf(
             graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
         )
-        graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_assetInformation"], created_asset_info_node))
+        graph.add((node, AASNameSpace.AAS_3["assetInformation"], created_asset_info_node))
 
         if self.submodels and len(self.submodels) > 0:
             for idx, submodel_ref in enumerate(self.submodels):
                 _, created_ref_node = submodel_ref.to_rdf(
                     graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
                 )
-                graph.add((created_ref_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["AssetAdministrationShell_submodels"], created_ref_node))
-
+                graph.add((created_ref_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((node, AASNameSpace.AAS_3["submodelReferences"], created_ref_node))
+        #see https://github.com/admin-shell-io/aas-specs-metamodel/issues/615
+        graph.add(
+            (
+                node,
+                AASNameSpace.AAS_3["modelVersion"],
+                rdflib.Literal("3.1"),
+            )
+        )
         return graph, node
 
     @staticmethod
@@ -105,7 +113,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         derived_from_value = None
         derived_from_value_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_derivedFrom"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["derivedFrom"]),
             None,
         )
         if derived_from_value_uriref:
@@ -113,7 +121,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         asset_information_value = None
         asset_information_value_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_assetInformation"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["assetInformation"]),
             None,
         )
         if asset_information_value_uriref:
@@ -121,7 +129,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         submodels_value = []
         for submodel_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["AssetAdministrationShell_submodels"]
+            subject=subject, predicate=AASNameSpace.AAS_3["submodelReferences"]
         ):
             submodel_ref = Reference.from_rdf(graph, submodel_uriref)
             submodels_value.append(submodel_ref)

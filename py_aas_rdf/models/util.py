@@ -47,31 +47,31 @@ def from_unknown_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> Sub
         graph.objects(subject=subject, predicate=RDF.type),
         None,
     )
-    if type_ref == AASNameSpace.AAS["AnnotatedRelationshipElement"]:
+    if type_ref == AASNameSpace.AAS_3["AnnotatedRelationshipElement"]:
         return AnnotatedRelationshipElement.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["RelationshipElement"]:
+    if type_ref == AASNameSpace.AAS_3["RelationshipElement"]:
         return RelationshipElement.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["BasicEventElement"]:
+    if type_ref == AASNameSpace.AAS_3["BasicEventElement"]:
         return BasicEventElement.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Blob"]:
+    if type_ref == AASNameSpace.AAS_3["Blob"]:
         return Blob.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["File"]:
+    if type_ref == AASNameSpace.AAS_3["File"]:
         return File.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["MultiLanguageProperty"]:
+    if type_ref == AASNameSpace.AAS_3["MultiLanguageProperty"]:
         return MultiLanguageProperty.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Property"]:
+    if type_ref == AASNameSpace.AAS_3["Property"]:
         return Property.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Range"]:
+    if type_ref == AASNameSpace.AAS_3["Range"]:
         return Range.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["ReferenceElement"]:
+    if type_ref == AASNameSpace.AAS_3["ReferenceElement"]:
         return ReferenceElement.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["SubmodelElementCollection"]:
+    if type_ref == AASNameSpace.AAS_3["SubmodelElementCollection"]:
         return SubmodelElementCollection.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["SubmodelElementList"]:
+    if type_ref == AASNameSpace.AAS_3["SubmodelElementList"]:
         return SubmodelElementList.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Entity"]:
+    if type_ref == AASNameSpace.AAS_3["Entity"]:
         return Entity.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Capability"]:
+    if type_ref == AASNameSpace.AAS_3["Capability"]:
         return Capability.from_rdf(graph, subject)
-    if type_ref == AASNameSpace.AAS["Operation"]:
+    if type_ref == AASNameSpace.AAS_3["Operation"]:
         return Operation.from_rdf(graph, subject)

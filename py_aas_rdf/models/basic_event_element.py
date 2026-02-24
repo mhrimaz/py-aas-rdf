@@ -53,6 +53,7 @@ class StateOfEvent(Enum):
     On = "on"
 
 
+# TODO: EventPayload ?
 class BasicEventElement(EventElement):
     observed: Reference
     direction: Direction
@@ -78,44 +79,46 @@ class BasicEventElement(EventElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["BasicEventElement"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["BasicEventElement"]))
 
         _, created_observed_node = self.observed.to_rdf(created_graph, created_node)
-        created_graph.add((created_node, AASNameSpace.AAS["BasicEventElement_observed"], created_observed_node))
+        created_graph.add((created_node, AASNameSpace.AAS_3["observed"], created_observed_node))
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["BasicEventElement_direction"],
-                AASNameSpace.AAS[f"Direction_{self.direction.name}"],
+                AASNameSpace.AAS_3["direction"],
+                AASNameSpace.AAS_3[f"Direction_{self.direction.name}"],
             )
         )
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["BasicEventElement_state"],
-                AASNameSpace.AAS[f"StateOfEvent_{self.state.name}"],
+                AASNameSpace.AAS_3["state"],
+                AASNameSpace.AAS_3[f"StateOfEvent_{self.state.name}"],
             )
         )
         if self.messageTopic:
             _, created_message_broker_node = self.messageBroker.to_rdf(created_graph, created_node)
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement_messageBroker"], created_message_broker_node)
+                (created_node, AASNameSpace.AAS_3["messageBroker"], created_message_broker_node)
             )
         if self.messageBroker:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement_messageTopic"], rdflib.Literal(self.messageTopic))
+                (created_node, AASNameSpace.AAS_3["messageTopic"], rdflib.Literal(self.messageTopic))
             )
         if self.lastUpdate:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement_lastUpdate"], rdflib.Literal(self.lastUpdate))
+                (created_node, AASNameSpace.AAS_3["lastUpdate"], rdflib.Literal(self.lastUpdate))
             )
         if self.minInterval:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement_minInterval"], rdflib.Literal(self.minInterval))
+                (created_node, AASNameSpace.AAS_3["minInterval"],
+                 rdflib.Literal(self.minInterval, datatype=rdflib.XSD.duration, normalize=False))
             )
         if self.maxInterval:
             created_graph.add(
-                (created_node, AASNameSpace.AAS["BasicEventElement_maxInterval"], rdflib.Literal(self.maxInterval))
+                (created_node, AASNameSpace.AAS_3["maxInterval"],
+                 rdflib.Literal(self.maxInterval, datatype=rdflib.XSD.duration, normalize=False))
             )
         return created_graph, created_node
 
@@ -123,7 +126,7 @@ class BasicEventElement(EventElement):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "BasicEventElement":
         observed_value = None
         observed_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_observed"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["observed"]),
             None,
         )
         if observed_ref:
@@ -131,23 +134,23 @@ class BasicEventElement(EventElement):
 
         direction_value = None
         direction_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_direction"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["direction"]),
             None,
         )
         if direction_ref:
-            direction_value = Direction[direction_ref[direction_ref.rfind("_") + 1 :]]
+            direction_value = Direction[direction_ref[direction_ref.rfind("_") + 1:]]
 
         state_value = None
         state_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_state"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["state"]),
             None,
         )
         if state_ref:
-            state_value = StateOfEvent[state_ref[state_ref.rfind("_") + 1 :]]
+            state_value = StateOfEvent[state_ref[state_ref.rfind("_") + 1:]]
 
         message_topic_value = None
         message_topic_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_messageTopic"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["messageTopic"]),
             None,
         )
         if message_topic_ref:
@@ -155,7 +158,7 @@ class BasicEventElement(EventElement):
 
         message_broker_value = None
         message_broker_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_messageBroker"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["messageBroker"]),
             None,
         )
         if message_broker_ref:
@@ -163,26 +166,26 @@ class BasicEventElement(EventElement):
 
         last_update_value = None
         last_update_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_lastUpdate"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["lastUpdate"]),
             None,
         )
         if last_update_ref:
             last_update_value = last_update_ref.value
         min_interval_value = None
         min_interval_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_minInterval"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["minInterval"]),
             None,
         )
         if min_interval_ref:
-            min_interval_value = min_interval_ref.value
+            min_interval_value = str(min_interval_ref)
 
         max_interval_value = None
         max_interval_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["BasicEventElement_maxInterval"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["maxInterval"]),
             None,
         )
         if max_interval_ref:
-            max_interval_value = max_interval_ref.value
+            max_interval_value = str(max_interval_ref)
 
         submodel_element = SubmodelElement.from_rdf(graph, subject)
         return BasicEventElement(

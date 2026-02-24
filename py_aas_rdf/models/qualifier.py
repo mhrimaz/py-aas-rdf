@@ -52,23 +52,26 @@ class Qualifier(HasSemantics):
             graph.add(
                 (
                     parent_node,
-                    AASNameSpace.AAS["Qualifier_kind"],
-                    AASNameSpace.AAS[f"QualifierKind_{instance.kind.value}"],
+                    AASNameSpace.AAS_3["qualifierKind"],
+                    AASNameSpace.AAS_3[f"QualifierKind_{instance.kind.value}"],
                 )
             )
-        graph.add((parent_node, AASNameSpace.AAS["Qualifier_type"], rdflib.Literal(instance.type)))
+        graph.add((parent_node, AASNameSpace.AAS_3["qualifierType"], rdflib.Literal(instance.type)))
         graph.add(
             (
                 parent_node,
-                AASNameSpace.AAS["Qualifier_valueType"],
-                AASNameSpace.AAS[f"DataTypeDefXsd_{instance.valueType.name}"],
+                AASNameSpace.AAS_3["valueType"],
+                rdflib.XSD[instance.valueType.value.replace("xs:", "")],
             )
         )
-        if instance.value:
-            graph.add((parent_node, AASNameSpace.AAS["Qualifier_value"], rdflib.Literal(instance.value)))
-        if instance.valueId:
+        if instance.value!=None:
+            graph.add((parent_node, AASNameSpace.AAS_3["value"],
+                               rdflib.Literal(instance.value, datatype=rdflib.XSD[instance.valueType.value.replace("xs:", "")],
+                                              normalize=False)))
+
+        if instance.valueId!=None:
             _, created_node = instance.valueId.to_rdf(graph, parent_node)
-            graph.add((parent_node, AASNameSpace.AAS["Qualifier_valueId"], created_node))
+            graph.add((parent_node, AASNameSpace.AAS_3["valueId"], created_node))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Qualifier":
@@ -77,35 +80,37 @@ class Qualifier(HasSemantics):
 
         kind_value = None
         kind_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_kind"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["qualifierKind"]),
             None,
         )
         if kind_value_ref:
-            kind_value = QualifierKind[kind_value_ref[kind_value_ref.rfind("_") + 1 :]]
+            kind_value = QualifierKind[kind_value_ref[kind_value_ref.rfind("_") + 1:]]
         type_value = None
         type_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_type"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["qualifierType"]),
             None,
         )
-        if type_value_ref:
+        if type_value_ref != None:
             type_value = type_value_ref.value
         value_type_value = None
         value_type_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_valueType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueType"]),
             None,
         )
         if value_type_value_ref:
-            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("_") + 1 :]]
+            local_part = str(value_type_value_ref).split('#')[-1]
+            xs_value = f"xs:{local_part}"
+            value_type_value = DataTypeDefXsd(xs_value)
         value_value = None
         value_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
-        if value_value_ref:
-            value_value = value_value_ref.value
+        if value_value_ref != None:
+            value_value = str(value_value_ref)
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Qualifier_valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueId"]),
             None,
         )
         if value_id_value_ref:

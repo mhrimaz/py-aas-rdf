@@ -55,26 +55,26 @@ class Property(DataElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Property"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["Property"]))
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["Property_valueType"],
+                AASNameSpace.AAS_3["valueType"],
                 rdflib.XSD[self.valueType.value.replace("xs:","")],
             )
         )
         if self.value != None:
-            created_graph.add((created_node, AASNameSpace.AAS["Property_value"], rdflib.Literal(self.value,datatype=rdflib.XSD[self.valueType.value.replace("xs:","")])))
+            created_graph.add((created_node, AASNameSpace.AAS_3["value"], rdflib.Literal(self.value, datatype=rdflib.XSD[self.valueType.value.replace("xs:", "")],normalize=False)))
         if self.valueId:
             _, value_id_ref_node = self.valueId.to_rdf(created_graph, created_node)
-            created_graph.add((created_node, AASNameSpace.AAS["Property_valueId"], value_id_ref_node))
+            created_graph.add((created_node, AASNameSpace.AAS_3["valueId"], value_id_ref_node))
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Property":
         value_type_value = None
         value_type_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Property_valueType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueType"]),
             None,
         )
         if value_type_value_ref:
@@ -84,14 +84,14 @@ class Property(DataElement):
 
         value_value = None
         value_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Property_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
         if value_value_ref != None:
-            value_value = str(value_value_ref.value)
+            value_value = str(value_value_ref)
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Property_valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueId"]),
             None,
         )
         if value_id_value_ref:

@@ -48,17 +48,17 @@ class ReferenceElement(DataElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["ReferenceElement"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["ReferenceElement"]))
         if self.value:
             _, created_sub_node = self.value.to_rdf(created_graph, created_node)
-            created_graph.add((created_node, AASNameSpace.AAS["ReferenceElement_value"], created_sub_node))
+            created_graph.add((created_node, AASNameSpace.AAS_3["value"], created_sub_node))
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "ReferenceElement":
         value_value = None
         value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["ReferenceElement_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
         if value_ref:

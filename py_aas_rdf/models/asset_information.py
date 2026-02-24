@@ -66,29 +66,23 @@ class AssetInformation(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = Graph()
-            graph.bind("aas", AASNameSpace.AAS)
-
-        if self.globalAssetId:
-            if id_strategy == "base64-url-encode":
-                node = rdflib.URIRef(f"{base_uri}{base_64_url_encode(self.globalAssetId)}")
-            else:
-                node = rdflib.URIRef(url_encode(f"{base_uri}{url_encode(self.globalAssetId)}"))
-        else:
-            node = rdflib.BNode()
-        graph.add((node, RDF.type, rdflib.URIRef(AASNameSpace.AAS["AssetInformation"])))
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+        # you can use any information to generate IRI. stick to blank node and later skolemize
+        node = rdflib.BNode()
+        graph.add((node, RDF.type, rdflib.URIRef(AASNameSpace.AAS_3["AssetInformation"])))
 
         graph.add(
             (
                 node,
-                rdflib.URIRef(AASNameSpace.AAS["AssetInformation_assetKind"]),
-                rdflib.URIRef(AASNameSpace.AAS[f"AssetKind_{self.assetKind.value}"]),
+                rdflib.URIRef(AASNameSpace.AAS_3["assetKind"]),
+                rdflib.URIRef(AASNameSpace.AAS_3[f"AssetKind_{self.assetKind.value}"]),
             )
         )
         if self.globalAssetId:
             graph.add(
                 (
                     node,
-                    rdflib.URIRef(AASNameSpace.AAS["AssetInformation_globalAssetId"]),
+                    rdflib.URIRef(AASNameSpace.AAS_3["globalAssetId"]),
                     rdflib.Literal(self.globalAssetId),
                 )
             )
@@ -96,42 +90,42 @@ class AssetInformation(BaseModel, RDFiable):
             graph.add(
                 (
                     node,
-                    rdflib.URIRef(AASNameSpace.AAS["AssetInformation_assetType"]),
+                    rdflib.URIRef(AASNameSpace.AAS_3["assetType"]),
                     rdflib.Literal(self.assetType),
                 )
             )
         if self.defaultThumbnail:
             thumbnail = rdflib.BNode()
-            graph.add((thumbnail, RDF.type, AASNameSpace.AAS["Resource"]))
-            graph.add((thumbnail, AASNameSpace.AAS["Resource_path"], rdflib.Literal(self.defaultThumbnail.path)))
+            graph.add((thumbnail, RDF.type, AASNameSpace.AAS_3["Resource"]))
+            graph.add((thumbnail, AASNameSpace.AAS_3["path"], rdflib.Literal(self.defaultThumbnail.path)))
             if self.defaultThumbnail.contentType:
                 graph.add(
                     (
                         thumbnail,
-                        AASNameSpace.AAS["Resource_contentType"],
+                        AASNameSpace.AAS_3["contentType"],
                         rdflib.Literal(self.defaultThumbnail.contentType),
                     )
                 )
-            graph.add((node, AASNameSpace.AAS["AssetInformation_defaultThumbnail"], thumbnail))
+            graph.add((node, AASNameSpace.AAS_3["defaultThumbnail"], thumbnail))
         if self.specificAssetIds and len(self.specificAssetIds) > 0:
             for idx, specific_asset_id_ref in enumerate(self.specificAssetIds):
                 _, created_node = specific_asset_id_ref.to_rdf(graph, node, prefix_uri, base_uri, id_strategy)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["AssetInformation_specificAssetIds"], created_node))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((node, AASNameSpace.AAS_3["specificAssetId"], created_node))
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         asset_kind_value = None
         asset_kind_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetInformation_assetKind"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["assetKind"]), None
         )
         if asset_kind_uriref:
             asset_kind_value = asset_kind_uriref[asset_kind_uriref.rfind("_") + 1 :]
 
         asset_type_value = None
         asset_type_uriref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetInformation_assetType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["assetType"]),
             None,
         )
         if asset_type_uriref:
@@ -139,7 +133,7 @@ class AssetInformation(BaseModel, RDFiable):
 
         global_asset_id_value = None
         global_asset_id_uriref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetInformation_globalAssetId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["globalAssetId"]),
             None,
         )
         if global_asset_id_uriref:
@@ -147,13 +141,13 @@ class AssetInformation(BaseModel, RDFiable):
 
         default_thumbnail_value = None
         default_thumbnail_uriref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AssetInformation_defaultThumbnail"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["defaultThumbnail"]),
             None,
         )
         if default_thumbnail_uriref:
             path_value = None
             path_uriref: rdflib.Literal = next(
-                graph.objects(subject=default_thumbnail_uriref, predicate=AASNameSpace.AAS["Resource_path"]),
+                graph.objects(subject=default_thumbnail_uriref, predicate=AASNameSpace.AAS_3["path"]),
                 None,
             )
             if path_uriref:
@@ -161,7 +155,7 @@ class AssetInformation(BaseModel, RDFiable):
 
             content_type_value = None
             content_type_uriref: rdflib.Literal = next(
-                graph.objects(subject=default_thumbnail_uriref, predicate=AASNameSpace.AAS["Resource_contentType"]),
+                graph.objects(subject=default_thumbnail_uriref, predicate=AASNameSpace.AAS_3["contentType"]),
                 None,
             )
             if content_type_uriref:
@@ -171,7 +165,7 @@ class AssetInformation(BaseModel, RDFiable):
 
         specific_asset_ids_value = []
         for specific_asset_uref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["AssetInformation_specificAssetIds"]
+            subject=subject, predicate=AASNameSpace.AAS_3["specificAssetId"]
         ):
             specific_asset_id = SpecificAssetId.from_rdf(graph, specific_asset_uref)
             specific_asset_ids_value.append(specific_asset_id)

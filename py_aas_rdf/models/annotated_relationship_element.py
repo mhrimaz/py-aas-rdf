@@ -57,7 +57,7 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
 
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["AnnotatedRelationshipElement"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["AnnotatedRelationshipElement"]))
         if self.annotations:
             for idx, annotation in enumerate(self.annotations):
                 _, created_sub_node = annotation.to_rdf(
@@ -67,9 +67,9 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
                     prefix_uri=prefix_uri + self.idShort + ".",
                     id_strategy=id_strategy,
                 )
-                created_graph.add((created_sub_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                created_graph.add((created_sub_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
                 created_graph.add(
-                    (created_node, AASNameSpace.AAS["AnnotatedRelationshipElement_annotations"], created_sub_node)
+                    (created_node, AASNameSpace.AAS_3["annotation"], created_sub_node)
                 )
         return created_graph, created_node
 
@@ -80,7 +80,7 @@ class AnnotatedRelationshipElement(RelationshipElementAbstract):
         from py_aas_rdf.models.util import from_unknown_rdf
 
         for annotation_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["AnnotatedRelationshipElement_annotations"]
+            subject=subject, predicate=AASNameSpace.AAS_3["annotation"]
         ):
             element = from_unknown_rdf(graph, annotation_uriref)
             annotations_value.append(element)

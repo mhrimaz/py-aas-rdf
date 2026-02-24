@@ -39,16 +39,16 @@ class HasDataSpecification(BaseModel):
                 _, created_node = data_specification.to_rdf(
                     graph,
                 )
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
                 graph.add(
-                    (parent_node, AASNameSpace.AAS["HasDataSpecification_embeddedDataSpecifications"], created_node)
+                    (parent_node, AASNameSpace.AAS_3["embeddedDataSpecification"], created_node)
                 )
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         embeddedDataSpecifications = []
         for embedded_ref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["HasDataSpecification_embeddedDataSpecifications"]
+            subject=subject, predicate=AASNameSpace.AAS_3["embeddedDataSpecification"]
         ):
             embeddedDataSpecifications.append(EmbeddedDataSpecification.from_rdf(graph, embedded_ref))
 

@@ -39,7 +39,7 @@ class Identifiable(Referable):
 
     @staticmethod
     def append_as_rdf(instance: "Identifiable", graph: rdflib.Graph, parent_node: rdflib.IdentifiedNode):
-        graph.add((parent_node, AASNameSpace.AAS["Identifiable_id"], rdflib.Literal(instance.id)))
+        graph.add((parent_node, AASNameSpace.AAS_3["id"], rdflib.Literal(instance.id)))
 
         if instance.administration:
             AdministrativeInformation.append_as_rdf(instance.administration, graph, parent_node)
@@ -54,13 +54,13 @@ class Identifiable(Referable):
 
         id_value = None
         id_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Identifiable_id"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["id"]),
             None,
         )
         id_value = id_ref.value
 
         administration_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Identifiable_administration"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["administration"]),
             None,
         )
         administration_value = None

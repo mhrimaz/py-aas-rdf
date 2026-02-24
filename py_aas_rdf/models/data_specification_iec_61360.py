@@ -32,103 +32,16 @@ from py_aas_rdf.models.rdfiable import RDFiable
 from py_aas_rdf.models.reference import Reference
 
 
-class LangStringPreferredNameTypeIec61360(AbstractLangString, RDFiable):
+class LangStringPreferredNameTypeIec61360(AbstractLangString):
     text: constr(min_length=1, max_length=255)
 
-    def to_rdf(
-        self,
-        graph: rdflib.Graph = None,
-        parent_node: rdflib.IdentifiedNode = None,
-        prefix_uri: str = "",
-        base_uri: str = "",
-        id_strategy: str = "",
-    ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        if graph == None:
-            graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
 
-        node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LangStringPreferredNameTypeIec61360"]))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_language"], rdflib.Literal(self.language)))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_text"], rdflib.Literal(self.text)))
-        return graph, node
-
-    @staticmethod
-    def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
-        language: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_language"]), None
-        )
-        text: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_text"]),
-            None,
-        )
-        return LangStringPreferredNameTypeIec61360(language=language.value, text=text.value)
-
-
-class LangStringShortNameTypeIec61360(AbstractLangString, RDFiable):
+class LangStringShortNameTypeIec61360(AbstractLangString):
     text: constr(min_length=1, max_length=18)
 
-    def to_rdf(
-        self,
-        graph: rdflib.Graph = None,
-        parent_node: rdflib.IdentifiedNode = None,
-        prefix_uri: str = "",
-        base_uri: str = "",
-        id_strategy: str = "",
-    ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        if graph == None:
-            graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
 
-        node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LangStringShortNameTypeIec61360"]))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_language"], rdflib.Literal(self.language)))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_text"], rdflib.Literal(self.text)))
-        return graph, node
-
-    @staticmethod
-    def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
-        language: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_language"]), None
-        )
-        text: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_text"]),
-            None,
-        )
-        return LangStringShortNameTypeIec61360(language=language.value, text=text.value)
-
-
-class LangStringDefinitionTypeIec61360(AbstractLangString, RDFiable):
+class LangStringDefinitionTypeIec61360(AbstractLangString):
     text: constr(min_length=1, max_length=1023)
-
-    def to_rdf(
-        self,
-        graph: rdflib.Graph = None,
-        parent_node: rdflib.IdentifiedNode = None,
-        prefix_uri: str = "",
-        base_uri: str = "",
-        id_strategy: str = "",
-    ) -> (rdflib.Graph, rdflib.IdentifiedNode):
-        if graph == None:
-            graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
-
-        node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LangStringDefinitionTypeIec61360"]))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_language"], rdflib.Literal(self.language)))
-        graph.add((node, AASNameSpace.AAS["AbstractLangString_text"], rdflib.Literal(self.text)))
-        return graph, node
-
-    @staticmethod
-    def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
-        language: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_language"]), None
-        )
-        text: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["AbstractLangString_text"]),
-            None,
-        )
-        return LangStringDefinitionTypeIec61360(language=language.value, text=text.value)
 
 
 class DataTypeIec61360(Enum):
@@ -170,36 +83,37 @@ class LevelType(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["LevelType"]))
-        graph.add((node, AASNameSpace.AAS["LevelType_min"], rdflib.Literal(self.min)))
-        graph.add((node, AASNameSpace.AAS["LevelType_nom"], rdflib.Literal(self.nom)))
-        graph.add((node, AASNameSpace.AAS["LevelType_typ"], rdflib.Literal(self.typ)))
-        graph.add((node, AASNameSpace.AAS["LevelType_max"], rdflib.Literal(self.max)))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["LevelType"]))
+        graph.add((node, AASNameSpace.IEC61360_3["min"], rdflib.Literal(self.min)))
+        graph.add((node, AASNameSpace.IEC61360_3["nom"], rdflib.Literal(self.nom)))
+        graph.add((node, AASNameSpace.IEC61360_3["typ"], rdflib.Literal(self.typ)))
+        graph.add((node, AASNameSpace.IEC61360_3["max"], rdflib.Literal(self.max)))
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         min_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["LevelType_min"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["min"]), None
         )
         nom_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["LevelType_nom"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["nom"]), None
         )
         typ_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["LevelType_typ"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["typ"]), None
         )
         max_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["LevelType_max"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["max"]), None
         )
         return LevelType.model_construct(min=min_ref.value, nom=nom_ref.value, typ=typ_ref.value, max=max_ref.value)
 
 
 class ValueReferencePair(BaseModel, RDFiable):
     value: constr(min_length=1, max_length=2000)
-    valueId: Optional[Reference]
+    valueId: Optional[Reference] = None
 
     def to_rdf(
         self,
@@ -211,28 +125,29 @@ class ValueReferencePair(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["ValueReferencePair"]))
-        if self.value:
-            graph.add((node, AASNameSpace.AAS["ValueReferencePair_value"], rdflib.Literal(self.value)))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["ValueReferencePair"]))
+        if self.value!=None:
+            graph.add((node, AASNameSpace.AAS_3["value"], rdflib.Literal(self.value)))
         if self.valueId:
             sub_graph, created_ref_node = self.valueId.to_rdf(graph=graph, parent_node=node)
-            graph.add((node, AASNameSpace.AAS["ValueReferencePair_valueId"], created_ref_node))
+            graph.add((node, AASNameSpace.AAS_3["valueId"], created_ref_node))
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         value: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["ValueReferencePair_value"]), None
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]), None
         )
         valueId: rdflib.IdentifiedNode = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["ValueReferencePair_valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueId"]),
             None,
         )
         value_created = None
-        if value:
+        if value!=None:
             value_created = value.value
         valueId_created = None
         if valueId:
@@ -254,25 +169,26 @@ class ValueList(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["ValueList"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["ValueList"]))
         if self.valueReferencePairs:
             for idx, value_reference_pair in enumerate(self.valueReferencePairs):
                 sub_graph, created_key_node = value_reference_pair.to_rdf(graph=graph, parent_node=node)
-                graph.add((created_key_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS["ValueList_valueReferencePairs"], created_key_node))
+                graph.add((created_key_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((node, AASNameSpace.IEC61360_3["valueReferencePair"], created_key_node))
 
         return graph, node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
-        value_list_content = graph.objects(subject=subject, predicate=AASNameSpace.AAS["ValueList_valueReferencePairs"])
+        value_list_content = graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["valueReferencePair"])
         keys = {}
         for item in value_list_content:
             created_value_reference_pair: ValueReferencePair = ValueReferencePair.from_rdf(graph, item)
-            index_ref: rdflib.Literal = next(graph.objects(subject=item, predicate=AASNameSpace.AAS["index"]), None)
+            index_ref: rdflib.Literal = next(graph.objects(subject=item, predicate=AASNameSpace.AAS_3["index"]), None)
             keys[index_ref.value] = created_value_reference_pair
 
         return ValueList.model_construct(valueReferencePairs=[keys[i] for i in range(len(keys.items()))])
@@ -306,35 +222,36 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["DataSpecificationIec61360"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["DataSpecificationIec61360"]))
         for idx, preferredName in enumerate(self.preferredName):
-            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360_preferredName"], rdflib.Literal(preferredName.text,lang=preferredName.language)))
+            graph.add((node, AASNameSpace.IEC61360_3["preferredName"], rdflib.Literal(preferredName.text, lang=preferredName.language)))
 
         if self.shortName:
             for idx, shortName in enumerate(self.shortName):
                 graph.add(
                     (
                         node,
-                        AASNameSpace.AAS["DataSpecificationIec61360_shortName"],
+                        AASNameSpace.IEC61360_3["shortName"],
                         rdflib.Literal(shortName.text,lang=shortName.language),
                     )
                 )
 
         if self.unit:
-            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360_unit"], rdflib.Literal(self.unit)))
+            graph.add((node, AASNameSpace.IEC61360_3["unit"], rdflib.Literal(self.unit)))
 
         if self.unitId:
             _, created_unit_id_node = self.unitId.to_rdf(graph=graph, parent_node=node)
-            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360_unitId"], created_unit_id_node))
+            graph.add((node, AASNameSpace.IEC61360_3["unitId"], created_unit_id_node))
 
         if self.sourceOfDefinition:
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["DataSpecificationIec61360_sourceOfDefinition"],
+                    AASNameSpace.IEC61360_3["sourceOfDefinition"],
                     rdflib.Literal(self.sourceOfDefinition),
                 )
             )
@@ -343,7 +260,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["DataSpecificationIec61360_symbol"],
+                    AASNameSpace.IEC61360_3["symbol"],
                     rdflib.Literal(self.symbol),
                 )
             )
@@ -351,8 +268,8 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["DataSpecificationIec61360_dataType"],
-                    AASNameSpace.AAS[f"DataTypeIec61360_{self.dataType.name}"],
+                    AASNameSpace.IEC61360_3["dataType"],
+                    AASNameSpace.IEC61360_3[f"{self.dataType.name}"],
                 )
             )
 
@@ -361,7 +278,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
                 graph.add(
                     (
                         node,
-                        AASNameSpace.AAS["DataSpecificationIec61360_definition"],
+                        AASNameSpace.IEC61360_3["definition"],
                         rdflib.Literal(definition_lang_text.text,lang=definition_lang_text.language),
                     )
                 )
@@ -370,7 +287,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["DataSpecificationIec61360_valueFormat"],
+                    AASNameSpace.IEC61360_3["valueFormat"],
                     rdflib.Literal(self.valueFormat),
                 )
             )
@@ -378,13 +295,17 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             graph.add(
                 (
                     node,
-                    AASNameSpace.AAS["DataSpecificationIec61360_value"],
+                    AASNameSpace.IEC61360_3["value"],
                     rdflib.Literal(self.value),
                 )
             )
         if self.levelType:
             _, created_level_type_node = self.levelType.to_rdf(graph=graph, parent_node=node)
-            graph.add((node, AASNameSpace.AAS["DataSpecificationIec61360_levelType"], created_level_type_node))
+            graph.add((node, AASNameSpace.IEC61360_3["levelType"], created_level_type_node))
+
+        if self.valueList:
+            _, created_value_list_node = self.valueList.to_rdf(graph=graph, parent_node=node)
+            graph.add((node, AASNameSpace.IEC61360_3["valueList"], created_value_list_node))
 
         return graph, node
 
@@ -393,19 +314,20 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         # TODO: !
         pref_name_langs = []
         for lang in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_preferredName"]
+            subject=subject, predicate=AASNameSpace.IEC61360_3["preferredName"]
         ):
             pref_name_langs.append(LangStringPreferredNameTypeIec61360(language=lang.language,text=lang.value))
 
+
         short_name_langs = []
-        for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_shortName"]):
+        for lang in graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["shortName"]):
             short_name_langs.append(LangStringShortNameTypeIec61360(language=lang.language,text=lang.value))
         if len(short_name_langs) == 0:
             short_name_langs = None
 
         unit = None
         unit_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_unit"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["unit"]),
             None,
         )
         if unit_ref:
@@ -413,7 +335,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
 
         unit_id = None
         unit_id_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_unitId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["unitId"]),
             None,
         )
         if unit_id_ref:
@@ -421,7 +343,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
 
         source_of_def = None
         source_of_def_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_sourceOfDefinition"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["sourceOfDefinition"]),
             None,
         )
         if source_of_def_ref:
@@ -431,7 +353,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         symbol_ref: rdflib.Literal = next(
             graph.objects(
                 subject=subject,
-                predicate=AASNameSpace.AAS["DataSpecificationIec61360_symbol"],
+                predicate=AASNameSpace.IEC61360_3["symbol"],
             ),
             None,
         )
@@ -442,15 +364,15 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         deta_type_ref: rdflib.URIRef = next(
             graph.objects(
                 subject=subject,
-                predicate=AASNameSpace.AAS["DataSpecificationIec61360_dataType"],
+                predicate=AASNameSpace.IEC61360_3["dataType"],
             ),
             None,
         )
         if deta_type_ref:
-            deta_type = DataTypeIec61360[deta_type_ref[deta_type_ref.rfind("_") + 1:]]
+            deta_type = DataTypeIec61360[deta_type_ref[deta_type_ref.rfind("/") + 1:]]
 
         defintion_langs = []
-        for lang in graph.objects(subject=subject, predicate=AASNameSpace.AAS["DataSpecificationIec61360_definition"]):
+        for lang in graph.objects(subject=subject, predicate=AASNameSpace.IEC61360_3["definition"]):
             defintion_langs.append(LangStringDefinitionTypeIec61360(language=lang.language,text=lang.value))
 
         if len(defintion_langs) == 0:
@@ -460,7 +382,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         value_format_ref: rdflib.Literal = next(
             graph.objects(
                 subject=subject,
-                predicate=AASNameSpace.AAS["DataSpecificationIec61360_valueFormat"],
+                predicate=AASNameSpace.IEC61360_3["valueFormat"],
             ),
             None,
         )
@@ -470,7 +392,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         value_ref: rdflib.Literal = next(
             graph.objects(
                 subject=subject,
-                predicate=AASNameSpace.AAS["DataSpecificationIec61360_value"],
+                predicate=AASNameSpace.IEC61360_3["value"],
             ),
             None,
         )
@@ -479,13 +401,24 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         level_type_ref: rdflib.URIRef = next(
             graph.objects(
                 subject=subject,
-                predicate=AASNameSpace.AAS["DataSpecificationIec61360_levelType"],
+                predicate=AASNameSpace.IEC61360_3["levelType"],
             ),
             None,
         )
         level_type = None
         if level_type_ref:
             level_type = LevelType.from_rdf(graph, level_type_ref)
+
+        value_list_ref: rdflib.URIRef = next(
+            graph.objects(
+                subject=subject,
+                predicate=AASNameSpace.IEC61360_3["valueList"],
+            ),
+            None,
+        )
+        value_list = None
+        if value_list_ref:
+            value_list = ValueList.from_rdf(graph, value_list_ref)
         return DataSpecificationIec61360(
             preferredName=pref_name_langs,
             shortName=short_name_langs,
@@ -498,4 +431,5 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
             valueFormat=value_format,
             value=value,
             levelType=level_type,
+            valueList=value_list,
         )

@@ -48,24 +48,23 @@ class MultiLanguageProperty(DataElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["MultiLanguageProperty"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["MultiLanguageProperty"]))
         # TODO: Empty string should not be None
         if self.value:
             for lang_value in self.value:
                 created_graph.add(
-                    (created_node, AASNameSpace.AAS["MultiLanguageProperty_value"],
+                    (created_node, AASNameSpace.AAS_3["value"],
                      rdflib.Literal(lang_value.text, lang=lang_value.language))
                 )
         if self.valueId:
             _, value_id_ref_node = self.valueId.to_rdf(created_graph, created_node)
-            created_graph.add((created_node, AASNameSpace.AAS["MultiLanguageProperty_valueId"], value_id_ref_node))
+            created_graph.add((created_node, AASNameSpace.AAS_3["valueId"], value_id_ref_node))
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "MultiLanguageProperty":
         value_value = []
-        for lan_literal in graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty_value"]):
-
+        for lan_literal in graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]):
             language = LangStringTextType(language=lan_literal.language, text=lan_literal.value)
             value_value.append(language)
 
@@ -74,7 +73,7 @@ class MultiLanguageProperty(DataElement):
 
         value_id_value = None
         value_id_value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["MultiLanguageProperty_valueId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueId"]),
             None,
         )
         if value_id_value_ref:

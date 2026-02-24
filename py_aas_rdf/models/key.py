@@ -46,22 +46,22 @@ class Key(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas", AASNameSpace.AAS)
+            graph.bind("aas-3", AASNameSpace.AAS_3)
 
         node = rdflib.BNode()
 
-        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS["Key"]))
+        graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["Key"]))
         graph.add(
             (
                 node,
-                AASNameSpace.AAS["Key_type"],
-                AASNameSpace.AAS[f"KeyTypes_{self.type.value}"],
+                AASNameSpace.AAS_3["keyType"],
+                AASNameSpace.AAS_3[f"KeyType_{self.type.value}"],
             )
         )
         graph.add(
             (
                 node,
-                AASNameSpace.AAS["Key_value"],
+                AASNameSpace.AAS_3["value"],
                 rdflib.Literal(self.value),
             )
         )
@@ -71,11 +71,11 @@ class Key(BaseModel, RDFiable):
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode):
         payload = {}
         key_type: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key_type"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["keyType"]),
             None,
         )
         value: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Key_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
         payload["type"] = key_type[key_type.rfind("_") + 1 :]

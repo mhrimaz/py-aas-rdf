@@ -18,6 +18,8 @@
 #  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from typing import Optional
+
 import rdflib
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
@@ -26,8 +28,8 @@ from py_aas_rdf.models.submodel_element import SubmodelElement
 
 
 class RelationshipElementAbstract(SubmodelElement):
-    first: Reference
-    second: Reference
+    first: Optional[Reference] = None
+    second: Optional[Reference] = None
 
     def to_rdf(
         self,
@@ -39,10 +41,12 @@ class RelationshipElementAbstract(SubmodelElement):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
 
-        _, first_node = self.first.to_rdf(created_graph, parent_node)
-        _, second_node = self.second.to_rdf(created_graph, parent_node)
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement_first"], first_node))
-        created_graph.add((created_node, AASNameSpace.AAS["RelationshipElement_second"], second_node))
+        if self.first:
+            _, first_node = self.first.to_rdf(created_graph, parent_node)
+            created_graph.add((created_node, AASNameSpace.AAS_3["first"], first_node))
+        if self.second:
+            _, second_node = self.second.to_rdf(created_graph, parent_node)
+            created_graph.add((created_node, AASNameSpace.AAS_3["second"], second_node))
         return created_graph, created_node
 
     @staticmethod
@@ -50,14 +54,14 @@ class RelationshipElementAbstract(SubmodelElement):
         submodel_element = SubmodelElement.from_rdf(graph, subject)
         first_value = None
         first_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement_first"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["first"]),
             None,
         )
         if first_ref:
             first_value = Reference.from_rdf(graph, first_ref)
         second_value = None
         second_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["RelationshipElement_second"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["second"]),
             None,
         )
         if second_ref:

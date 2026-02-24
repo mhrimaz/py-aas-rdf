@@ -38,17 +38,17 @@ class HasSemantics(BaseModel):
     def append_as_rdf(instance: "HasSemantics", graph: rdflib.Graph, parent_node: rdflib.IdentifiedNode):
         if instance.semanticId:
             _, created_node_semantic_id = instance.semanticId.to_rdf(graph=graph, parent_node=parent_node)
-            graph.add((parent_node, AASNameSpace.AAS["HasSemantics_semanticId"], created_node_semantic_id))
+            graph.add((parent_node, AASNameSpace.AAS_3["semanticId"], created_node_semantic_id))
         if instance.supplementalSemanticIds and len(instance.supplementalSemanticIds) > 0:
             for idx, supplementalSemanticId in enumerate(instance.supplementalSemanticIds):
                 _, created_node = supplementalSemanticId.to_rdf(graph=graph, parent_node=parent_node)
-                graph.add((created_node, AASNameSpace.AAS["index"], rdflib.Literal(idx)))
-                graph.add((parent_node, AASNameSpace.AAS["HasSemantics_supplementalSemanticIds"], created_node))
+                graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
+                graph.add((parent_node, AASNameSpace.AAS_3["supplementalSemanticId"], created_node))
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "HasSemantics":
         semantic_id_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["HasSemantics_semanticId"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["semanticId"]),
             None,
         )
 
@@ -58,7 +58,7 @@ class HasSemantics(BaseModel):
 
         supplementalSemanticIds = []
         for supp_semantic_id in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS["HasSemantics_supplementalSemanticIds"]
+            subject=subject, predicate=AASNameSpace.AAS_3["supplementalSemanticId"]
         ):
             supplementalSemanticIds.append(Reference.from_rdf(graph, supp_semantic_id))
 

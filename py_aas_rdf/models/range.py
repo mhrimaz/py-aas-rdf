@@ -50,57 +50,53 @@ class Range(DataElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Range"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["Range"]))
         created_graph.add(
             (
                 created_node,
-                AASNameSpace.AAS["Range_valueType"],
-                AASNameSpace.AAS[f"DataTypeDefXsd_{self.valueType.name}"],
+                AASNameSpace.AAS_3["valueType"],
+                rdflib.XSD[self.valueType.value.replace("xs:", "")],
             )
         )
         if self.min != None:
-            created_graph.add(
-                (
-                    created_node,
-                    AASNameSpace.AAS["Range_min"],
-                    rdflib.Literal(self.min),
-                )
-            )
+            created_graph.add((created_node, AASNameSpace.AAS_3["min"],
+                               rdflib.Literal(self.min, datatype=rdflib.XSD[self.valueType.value.replace("xs:", "")],
+                                              normalize=False)))
+
         if self.max != None:
-            created_graph.add(
-                (
-                    created_node,
-                    AASNameSpace.AAS["Range_max"],
-                    rdflib.Literal(self.max),
-                )
-            )
+            created_graph.add((created_node, AASNameSpace.AAS_3["max"],
+                               rdflib.Literal(self.max, datatype=rdflib.XSD[self.valueType.value.replace("xs:", "")],
+                                              normalize=False)))
+
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Range":
         value_type_value = None
         value_type_value_ref: rdflib.URIRef = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_valueType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["valueType"]),
             None,
         )
         if value_type_value_ref:
-            value_type_value = DataTypeDefXsd[value_type_value_ref[value_type_value_ref.rfind("_") + 1 :]]
+            local_part = str(value_type_value_ref).split('#')[-1]
+            xs_value = f"xs:{local_part}"
+            value_type_value = DataTypeDefXsd(xs_value)
 
         min_value = None
         min_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_min"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["min"]),
             None,
         )
-        if min_ref:
-            min_value = min_ref
+        if min_ref != None:
+            min_value = str(min_ref)
 
         max_value = None
         max_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Range_max"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["max"]),
             None,
         )
-        if max_ref:
-            max_value = max_ref
+        if max_ref != None:
+            max_value = str(max_ref)
 
         submodel_element = SubmodelElement.from_rdf(graph, subject)
         return Range(

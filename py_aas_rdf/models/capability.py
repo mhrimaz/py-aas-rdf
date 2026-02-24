@@ -40,7 +40,7 @@ class Capability(SubmodelElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Capability"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["Capability"]))
         return created_graph, created_node
 
     @staticmethod

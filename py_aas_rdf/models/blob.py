@@ -39,7 +39,7 @@ import base64
 # TODO: check content type
 class Blob(DataElement):
     value: Optional[str] = None
-    contentType: str
+    contentType: Optional[str] = None
     modelType: Literal["Blob"] = ModelType.Blob.value
 
     def to_rdf(
@@ -51,36 +51,37 @@ class Blob(DataElement):
         id_strategy: str = "",
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         created_graph, created_node = super().to_rdf(graph, parent_node, prefix_uri, base_uri, id_strategy)
-        created_graph.add((created_node, RDF.type, AASNameSpace.AAS["Blob"]))
+        created_graph.add((created_node, RDF.type, AASNameSpace.AAS_3["Blob"]))
         if self.value != None:
             created_graph.add(
                 (
                     created_node,
-                    AASNameSpace.AAS["Blob_value"],
+                    AASNameSpace.AAS_3["value"],
                     rdflib.Literal(self.value, datatype=rdflib.XSD.base64Binary),
                 )
             )
-        created_graph.add(
-            (
-                created_node,
-                AASNameSpace.AAS["Blob_contentType"],
-                rdflib.Literal(self.contentType),
+        if self.contentType:
+            created_graph.add(
+                (
+                    created_node,
+                    AASNameSpace.AAS_3["contentType"],
+                    rdflib.Literal(self.contentType),
+                )
             )
-        )
         return created_graph, created_node
 
     @staticmethod
     def from_rdf(graph: rdflib.Graph, subject: rdflib.IdentifiedNode) -> "Blob":
         value_value = None
         value_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob_value"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["value"]),
             None,
         )
         if value_ref:
             value_value = value_ref
         content_type_value = None
         content_type_ref: rdflib.Literal = next(
-            graph.objects(subject=subject, predicate=AASNameSpace.AAS["Blob_contentType"]),
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["contentType"]),
             None,
         )
         if content_type_ref:

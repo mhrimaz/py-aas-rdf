@@ -31,7 +31,9 @@ def test_value_reference_to_rdf():
         }
     })
     graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
     re_created = ValueReferencePair.from_rdf(graph, created_node)
+    print(re_created.model_dump_json(exclude_none=True,indent=2))
     assert payload == re_created
 
 
@@ -206,7 +208,7 @@ def test_property_to_rdf():
         assert payload == re_created
 
 
-def test_env_to_rdf():
+def test_env1_to_rdf():
     payload = Environment(**{
         "assetAdministrationShells": [
             {
@@ -295,6 +297,168 @@ def test_env_to_rdf():
     re_created = Environment.from_rdf(graph, created_node)
     assert payload == re_created
 
+def test_env2_to_rdf():
+    payload = Environment(**{
+  "assetAdministrationShells": [
+    {
+      "assetInformation": {
+        "assetKind": "Role",
+        "globalAssetId": "something_eea66fa1"
+      },
+      "embeddedDataSpecifications": [
+        {
+          "dataSpecification": {
+            "keys": [
+              {
+                "type": "GlobalReference",
+                "value": "urn:some-company06:e9f47be2"
+              }
+            ],
+            "type": "ExternalReference"
+          },
+          "dataSpecificationContent": {
+            "modelType": "DataSpecificationIec61360",
+            "preferredName": [
+              {
+                "language": "i-enochian",
+                "text": "something_84b0b440"
+              },
+              {
+                "language": "en-GB",
+                "text": "Something random in English 5b15c20d"
+              }
+            ],
+            "valueList": {
+              "valueReferencePairs": [
+                {
+                  "value": "something_63781b6f"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "id": "something_142922d6",
+      "modelType": "AssetAdministrationShell"
+    }
+  ]
+})
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Environment.from_rdf(graph, created_node)
+    assert payload == re_created
+def test_env3_to_rdf():
+    payload = Environment(**{
+  "assetAdministrationShells": [
+    {
+      "idShort": "Car",
+      "id": "https://example.com/ids/aas/4163_3151_2062_0754",
+      "assetInformation": {
+        "assetKind": "NotApplicable",
+        "globalAssetId": "https://example.com/ids/asset/7263_3151_2062_8435"
+      },
+      "submodels": [
+        {
+          "type": "ModelReference",
+          "keys": [
+            {
+              "type": "Submodel",
+              "value": "https://example.com/ids/sm/9563_3151_2062_6272"
+            }
+          ]
+        }
+      ],
+      "modelType": "AssetAdministrationShell"
+    },
+    {
+      "idShort": "Engine",
+      "id": "https://example.com/ids/aas/6363_3151_2062_6818",
+      "assetInformation": {
+        "assetKind": "NotApplicable",
+        "globalAssetId": "https://example.com/ids/asset/5463_3151_2062_5839"
+      },
+      "modelType": "AssetAdministrationShell"
+    }
+  ],
+  "submodels": [
+    {
+      "idShort": "Components",
+      "id": "https://example.com/ids/sm/9563_3151_2062_6272",
+      "kind": "Instance",
+      "submodelElements": [
+        {
+          "idShort": "Motor",
+          "entityType": "SelfManagedEntity",
+          "globalAssetId": "https://example.com/ids/asset/5463_3151_2062_5839",
+          "modelType": "Entity"
+        },
+        {
+          "idShort": "hasEngineRel",
+          "first": {
+            "type": "ModelReference",
+            "keys": [
+              {
+                "type": "Submodel",
+                "value": "https://example.com/ids/sm/9563_3151_2062_6272"
+              },
+              {
+                "type": "Entity",
+                "value": "Motor"
+              }
+            ]
+          },
+          "second": {
+            "type": "ModelReference",
+            "keys": [
+              {
+                "type": "AssetAdministrationShell",
+                "value": "https://example.com/ids/aas/6363_3151_2062_6818"
+              }
+            ]
+          },
+          "modelType": "RelationshipElement"
+        },
+        {
+          "idShort": "hasEngineRelA",
+          "first": {
+            "type": "ModelReference",
+            "keys": [
+              {
+                "type": "AssetAdministrationShell",
+                "value": "https://example.com/ids/aas/4163_3151_2062_0754"
+              }
+            ]
+          },
+          "second": {
+            "type": "ModelReference",
+            "keys": [
+              {
+                "type": "AssetAdministrationShell",
+                "value": "https://example.com/ids/aas/6363_3151_2062_6818"
+              }
+            ]
+          },
+          "annotations": [
+            {
+              "idShort": "reason",
+              "valueType": "xs:string",
+              "value": "we need it",
+              "modelType": "Property"
+            }
+          ],
+          "modelType": "AnnotatedRelationshipElement"
+        }
+      ],
+      "modelType": "Submodel"
+    }
+  ]
+})
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Environment.from_rdf(graph, created_node)
+    assert payload == re_created
 
 def test_irdi():
     assert is_irdi("0173-1#02-AAA123#001") == True
