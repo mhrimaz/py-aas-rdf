@@ -66,8 +66,10 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("myaas", base_uri)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            graph.bind("myaas", base_uri)
+
 
         if id_strategy == "base64-url-encode":
             node = rdflib.URIRef(f"{base_uri}{base_64_url_encode(self.id)}")
@@ -125,7 +127,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
                     graph, node, prefix_uri=common_pref, base_uri=base_uri, id_strategy=id_strategy
                 )
                 graph.add((created_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS_3["submodelElements"], created_node))
+                graph.add((node, AASNameSpace.AAS_3["submodelElement"], created_node))
         # see https://github.com/admin-shell-io/aas-specs-metamodel/issues/615
         graph.add(
             (
@@ -164,7 +166,7 @@ class Submodel(Identifiable, HasKind, HasSemantics, Qualifiable, HasDataSpecific
         submodel_elements_value = []
 
         for submodel_element_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS_3["submodelElements"]
+            subject=subject, predicate=AASNameSpace.AAS_3["submodelElement"]
         ):
             element = from_unknown_rdf(graph, submodel_element_uriref)
             submodel_elements_value.append(element)

@@ -108,7 +108,8 @@ class BasicEventElement(EventElement):
             )
         if self.lastUpdate:
             created_graph.add(
-                (created_node, AASNameSpace.AAS_3["lastUpdate"], rdflib.Literal(self.lastUpdate))
+                (created_node, AASNameSpace.AAS_3["lastUpdate"],
+                 rdflib.Literal(self.lastUpdate, datatype=rdflib.XSD.dateTimeStamp, normalize=False))
             )
         if self.minInterval:
             created_graph.add(
@@ -170,7 +171,7 @@ class BasicEventElement(EventElement):
             None,
         )
         if last_update_ref:
-            last_update_value = last_update_ref.value
+            last_update_value = str(last_update_ref)
         min_interval_value = None
         min_interval_ref: rdflib.Literal = next(
             graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["minInterval"]),

@@ -460,6 +460,82 @@ def test_env3_to_rdf():
     re_created = Environment.from_rdf(graph, created_node)
     assert payload == re_created
 
+def test_env6_to_rdf():
+    payload = Environment(**{
+  "assetAdministrationShells": [
+    {
+      "id": "https://example.com/ids/aas/0493_5150_3062_0463",
+      "assetInformation": {
+        "assetKind": "Instance"
+      },
+      "submodels": [
+        {
+          "type": "ModelReference",
+          "keys": [
+            {
+              "type": "Submodel",
+              "value": "https://example.com/ids/sm/6593_5150_3062_4896"
+            }
+          ]
+        }
+      ],
+      "modelType": "AssetAdministrationShell"
+    }
+  ],
+  "submodels": [
+    {
+      "idShort": "Nameplate",
+      "id": "https://example.com/ids/sm/6593_5150_3062_4896",
+      "kind": "Instance",
+      "submodelElements": [
+        {
+          "idShort": "AssetTemperature",
+          "valueType": "xs:double",
+          "value": "0.5",
+          "modelType": "Property"
+        },
+        {
+          "idShort": "AssetName",
+          "value": [
+            {
+              "language": "en",
+              "text": "Pump"
+            },
+            {
+              "language": "de",
+              "text": "Pumpe"
+            }
+          ],
+          "modelType": "MultiLanguageProperty"
+        },
+        {
+          "idShort": "ManufacturerName",
+          "value": {
+            "type": "ModelReference",
+            "keys": [
+              {
+                "type": "Submodel",
+                "value": "https://example.com/Manufacturere"
+              },
+              {
+                "type": "Property",
+                "value": "name"
+              }
+            ]
+          },
+          "modelType": "ReferenceElement"
+        }
+      ],
+      "modelType": "Submodel"
+    }
+  ]
+})
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Environment.from_rdf(graph, created_node)
+    assert payload == re_created
+
 def test_irdi():
     assert is_irdi("0173-1#02-AAA123#001") == True
     assert is_irdi("0112-1-a-18582#KAA802#s") == True

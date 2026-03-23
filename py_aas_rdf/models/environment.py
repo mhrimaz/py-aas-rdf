@@ -51,7 +51,7 @@ def find_child_element_by_id_short(graph: rdflib.Graph, parent_node: rdflib.URIR
     # TODO: does not handle element within SML with index reference.
     id_short_literal = rdflib.Literal(key_value)
     # Elements within Submodel
-    for child_node in graph.objects(parent_node, AASNameSpace.AAS_3["submodelElements"]):
+    for child_node in graph.objects(parent_node, AASNameSpace.AAS_3["submodelElement"]):
         child_id_short = graph.value(child_node, AASNameSpace.AAS_3["idShort"])
         if child_id_short == id_short_literal:
             return child_node  # Found the matching child

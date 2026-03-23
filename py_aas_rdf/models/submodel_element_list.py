@@ -90,12 +90,12 @@ class SubmodelElementList(SubmodelElement):
                     created_sub_node,
                 )
             )
-        # TODO: we removed this
+        
         created_graph.add(
             (
                 created_node,
                 AASNameSpace.AAS_3["typeValueListElement"],
-                AASNameSpace.AAS_3[f"AasSubmodelElements_{self.typeValueListElement.name}"],
+                AASNameSpace.AAS_3[self.typeValueListElement.name],
             )
         )
         if self.valueTypeListElement:
@@ -145,7 +145,7 @@ class SubmodelElementList(SubmodelElement):
         )
         if type_value_list_element_ref:
             type_value_list_element_value = AasSubmodelElements[
-                type_value_list_element_ref[type_value_list_element_ref.rfind("_") + 1:]
+                type_value_list_element_ref[type_value_list_element_ref.rfind("/") + 1:]
             ]
 
         value_type_list_element_value = None

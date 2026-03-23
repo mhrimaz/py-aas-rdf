@@ -84,6 +84,7 @@ class LevelType(BaseModel, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
@@ -126,6 +127,7 @@ class ValueReferencePair(BaseModel, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
@@ -170,6 +172,7 @@ class ValueList(BaseModel, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
@@ -223,6 +226,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()

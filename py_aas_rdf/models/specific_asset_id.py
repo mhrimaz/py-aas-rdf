@@ -39,7 +39,7 @@ class SpecificAssetId(HasSemantics, RDFiable):
     )
     value: constr(
         min_length=1,
-        max_length=2000,
+        max_length=2048,
     )
     externalSubjectId: Optional[Reference] = None
 
@@ -54,6 +54,8 @@ class SpecificAssetId(HasSemantics, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
+            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
         node = rdflib.BNode()
         graph.add((node, RDF.type, AASNameSpace.AAS_3["SpecificAssetId"]))

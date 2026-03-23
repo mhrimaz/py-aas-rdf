@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import pytest
+import rdflib
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
 from py_aas_rdf.models.environment import Environment
@@ -11,6 +12,9 @@ from py_aas_rdf.models.key import Key
 from py_aas_rdf.models.multi_language_property import MultiLanguageProperty
 from py_aas_rdf.models.property import Property
 from py_aas_rdf.models.submodel import Submodel
+
+
+from pyshacl import validate
 # Root path configuration
 REPO_ROOT = Path(r"C:\Users\hossein.rimaz\repos\aas-specs")
 JSON_BASE = REPO_ROOT / "schemas" / "json" / "examples" / "generated"
@@ -29,58 +33,184 @@ import json
 
 
 def frame_rdf_to_tree(raw_jsonld, context):
-    # 1. Normalize input to a list of nodes
+    """
+    Takes JSON-LD data serialized with auto_compact=True (all nodes flat, prefixed names)
+    and a JSON-LD context dict. Compacts property names, resolves enum/vocab values,
+    nests blank nodes, and returns a tree rooted at the Environment node.
+    """
+    AAS = "https://admin-shell.io/aas/3/"
+    IEC = "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIec61360/3/"
+
+    # --- 1. Normalize input to a flat list of nodes ---
     if isinstance(raw_jsonld, dict) and "@graph" in raw_jsonld:
         graph_list = raw_jsonld["@graph"]
-    else:
+    elif isinstance(raw_jsonld, list):
         graph_list = raw_jsonld
+    else:
+        graph_list = [raw_jsonld]
 
-    # 2. Build the Lookup Map (The "Brain" of the operation)
-    # This stores every node, including Blank Nodes (_:...)
-    nodes = {node["@id"]: node for node in graph_list if "@id" in node}
+    # --- 2. Build IRI → short name mapping from context ---
+    iri_to_name = {}        # full IRI → context short name
+    name_to_config = {}     # short name → context definition dict
 
-    # 3. Identify the true root (Environment)
-    root = next((n for n in graph_list if n.get("@type") == "aas-3:Environment"), graph_list[0])
+    for name, defn in context.items():
+        if name.startswith("@"):
+            continue
+        if isinstance(defn, str):
+            continue  # prefix alias like "aas": "https://..."
+        if isinstance(defn, dict) and "@id" in defn:
+            iri = defn["@id"]
+            if iri.startswith("aas:"):
+                iri = AAS + iri[4:]
+            elif iri.startswith("iec61360:"):
+                iri = IEC + iri[9:]
+            iri_to_name[iri] = name
+            name_to_config[name] = defn
 
-    def nest_recursive(item):
-        # --- BLANK NODE & IRI RESOLUTION ---
-        # If the item is a string (like "_:Na5c...") AND it exists in our node map
+    def expand_prefix(s):
+        """Expand any known prefix to full IRI."""
+        if s.startswith("aas-3:"):
+            return AAS + s[6:]
+        if s.startswith("aas-iec61360-3:"):
+            return IEC + s[15:]
+        if s.startswith("aas:"):
+            return AAS + s[4:]
+        if s.startswith("iec61360:"):
+            return IEC + s[9:]
+        return s
+
+    def compact_prop_name(k):
+        """Compact a prefixed property name to its context short name."""
+        full = expand_prefix(k)
+        if full in iri_to_name:
+            return iri_to_name[full]
+        # @vocab fallback: any IRI under the vocab base gets its local name
+        vocab = context.get("@vocab", "")
+        if vocab and full.startswith(vocab):
+            return full[len(vocab):]
+        return k
+
+    def resolve_vocab_value(iri_str, local_ctx):
+        """Resolve an IRI to a short vocab name using a local @context mapping."""
+        expanded = expand_prefix(iri_str)
+        for vname, vdefn in local_ctx.items():
+            if isinstance(vdefn, dict) and "@id" in vdefn:
+                viri = expand_prefix(vdefn["@id"])
+                if expanded == viri:
+                    return vname
+        # Fallback: use the local name after the last /
+        return expanded.rsplit("/", 1)[-1] if "/" in expanded else expanded
+
+    def compact_type_value(t):
+        """Compact a @type value (class IRI) to its local name."""
+        if isinstance(t, list):
+            return compact_type_value(t[0]) if t else None
+        expanded = expand_prefix(t) if isinstance(t, str) else t
+        if isinstance(expanded, str):
+            if expanded.startswith(AAS):
+                return expanded[len(AAS):]
+            if expanded.startswith(IEC):
+                return expanded[len(IEC):]
+        return t
+
+    def compact_single_value(val, config):
+        """Compact a single property value based on its context config."""
+        type_def = config.get("@type") if isinstance(config, dict) else None
+        local_ctx = config.get("@context", {}) if isinstance(config, dict) else {}
+
+        # @vocab with local context → resolve enum value
+        if type_def == "@vocab" and local_ctx:
+            if isinstance(val, dict) and "@id" in val:
+                return resolve_vocab_value(val["@id"], local_ctx)
+            if isinstance(val, str):
+                return resolve_vocab_value(val, local_ctx)
+
+        # @type: @id → extract the IRI string
+        if type_def == "@id":
+            if isinstance(val, dict) and "@id" in val:
+                return val["@id"]
+
+        # Language-tagged literal → {language, text} object
+        if isinstance(val, dict) and "@value" in val and "@language" in val:
+            return {"language": val["@language"], "text": val["@value"]}
+
+        # Plain literal with @value wrapper
+        if isinstance(val, dict) and "@value" in val:
+            return val["@value"]
+
+        return val
+
+    def compact_prop_value(v, config):
+        """Compact a property value, handling containers (@set, @list, @language)."""
+        container = config.get("@container") if isinstance(config, dict) else None
+
+        # Transform individual values
+        if isinstance(v, list):
+            result = [compact_single_value(item, config) for item in v]
+        else:
+            result = compact_single_value(v, config)
+
+        # Ensure container compliance
+        if container in ("@set", "@list", "@language"):
+            if not isinstance(result, list):
+                result = [result]
+
+        return result
+
+    # --- 3. Compact all nodes ---
+    def compact_node(node):
+        result = {}
+        for k, v in node.items():
+            if k == "@id":
+                result["@id"] = v
+                continue
+            if k == "@type":
+                result["modelType"] = compact_type_value(v)
+                continue
+            short = compact_prop_name(k)
+            config = name_to_config.get(short, {})
+            result[short] = compact_prop_value(v, config)
+        return result
+
+    compacted = [compact_node(n) for n in graph_list]
+
+    # --- 4. Build node map by @id ---
+    nodes = {n["@id"]: n for n in compacted if "@id" in n}
+
+    # --- 5. Identify root (Environment) ---
+    root = next((n for n in compacted if n.get("modelType") == "Environment"), compacted[0])
+
+    # --- 6. Recursive nesting ---
+    def nest(item):
+        # String that matches a node ID → resolve to that node's data
         if isinstance(item, str) and item in nodes:
-            # Pop the data out of the map and resolve its children
-            node_data = nodes.pop(item)
-            return nest_recursive(node_data)
+            return nest(nodes.pop(item))
 
-        # --- REFERENCE DICT RESOLUTION ---
-        # If the item is {"@id": "_:Na5c..."}
+        # Dict with @id → resolve if we have data for it
         if isinstance(item, dict) and "@id" in item:
-            node_id = item["@id"]
-            # If we have the data for this ID, replace the whole dict with the data
-            if node_id in nodes:
-                node_data = nodes.pop(node_id)
-                return nest_recursive(node_data)
-            # If it's a reference we don't have data for (like an external IRI),
-            # keep it but remove the @id key if it's the only key
+            nid = item["@id"]
+            if nid in nodes:
+                return nest(nodes.pop(nid))
+            # Bare reference we don't have data for → return the IRI string
             if len(item) == 1:
-                return item["@id"]
+                return nid
 
-        # --- RECURSIVE DICTIONARY TRAVERSAL ---
+        # Recurse into dictionaries (drop @id since nodes are now nested)
         if isinstance(item, dict):
-            new_obj = {}
+            result = {}
             for k, v in item.items():
-                if k == "@id": continue  # Drop the IDs now that they are nested
-                new_obj[k] = nest_recursive(v)
-            return new_obj
+                if k == "@id":
+                    continue
+                result[k] = nest(v)
+            return result
 
-        # --- LIST TRAVERSAL ---
+        # Recurse into lists
         if isinstance(item, list):
-            return [nest_recursive(i) for i in item]
+            return [nest(i) for i in item]
 
         return item
 
-    # 4. Generate the final hierarchy
-    tree = nest_recursive(root)
-
-    # 5. Attach context
+    tree = nest(root)
     return {"@context": context, **tree}
 @pytest.mark.parametrize("json_file", get_json_examples(), ids=lambda p: str(p.relative_to(JSON_BASE)))
 def test_json_rdf_roundtrip(json_file: Path):
@@ -101,6 +231,8 @@ def test_json_rdf_roundtrip(json_file: Path):
     aas_env = Environment(**original_dict)
     graph, created_node = aas_env.to_rdf()
 
+
+
     # 4. Save the RDF (Turtle) to the mirrored folder
     with open(output_ttl_path, "w", encoding="utf-8") as f:
         f.write("# IRI of entities are not normative and can be modified according to your needs.\n")
@@ -113,13 +245,13 @@ def test_json_rdf_roundtrip(json_file: Path):
         # Get your context dictionary
         context_dict = json.loads(AASNameSpace.AAS_JSON_LD_CONTEXT_3).get("@context")
 
-        # Step 1: Serialize with rdflib to get the initial compacted JSON
+        # Step 1: Serialize with auto_compact to get ALL nodes (including blank nodes)
         raw_jsonld_str = graph.serialize(
             format='json-ld',
-            context=context_dict
+            auto_compact=True
         )
 
-        # Step 2: Call the manual framing function
+        # Step 2: Compact property names + nest blank nodes using context
         raw_data = json.loads(raw_jsonld_str)
         framed_json = frame_rdf_to_tree(raw_data, context_dict)
 
@@ -133,6 +265,27 @@ def test_json_rdf_roundtrip(json_file: Path):
     if aas_env != re_created_env:
         with open(output_ttl_path, "w", encoding="utf-8") as f:
             f.write("# Roundtrip failed")
+            f.write(graph.serialize(format='turtle'))
+
+    # todo: validate the generated graph against shacl shape
+    SHACL_GRAPH = rdflib.Graph()
+    SHACL_GRAPH.parse(data=AASNameSpace.AAS_SHACL_3, format="turtle")
+
+    # Run the validation
+    conforms, results_graph, results_text = validate(
+        data_graph=graph,
+        shacl_graph=SHACL_GRAPH,
+        shacl_graph_format="turtle",  # Update this if your string is xml, json-ld, etc.
+        inference="rdfs",  # Optional: use if your shape relies on subclassing
+        advanced=True,
+        debug=False
+    )
+    if conforms==False:
+        with open(output_ttl_path, "w", encoding="utf-8") as f:
+            print(f"validation failed for {relative_path}")
+            f.write("# SHACL Validation failed")
+            f.write(results_text)
+            f.write("# Data")
             f.write(graph.serialize(format='turtle'))
     # Comparison logic
     # First: Compare model objects directly

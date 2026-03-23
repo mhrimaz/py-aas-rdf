@@ -53,6 +53,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
         if graph == None:
             graph = rdflib.Graph()
             graph.bind("aas-3", AASNameSpace.AAS_3)
+            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
             graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
             graph.bind("myaas", base_uri)
 
@@ -92,7 +93,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
                     graph, node, base_uri=base_uri, prefix_uri=prefix_uri, id_strategy=id_strategy
                 )
                 graph.add((created_ref_node, AASNameSpace.AAS_3["index"], rdflib.Literal(idx)))
-                graph.add((node, AASNameSpace.AAS_3["submodelReferences"], created_ref_node))
+                graph.add((node, AASNameSpace.AAS_3["submodelReference"], created_ref_node))
         #see https://github.com/admin-shell-io/aas-specs-metamodel/issues/615
         graph.add(
             (
@@ -129,7 +130,7 @@ class AssetAdministrationShell(Identifiable, HasDataSpecification, RDFiable):
 
         submodels_value = []
         for submodel_uriref in graph.objects(
-            subject=subject, predicate=AASNameSpace.AAS_3["submodelReferences"]
+            subject=subject, predicate=AASNameSpace.AAS_3["submodelReference"]
         ):
             submodel_ref = Reference.from_rdf(graph, submodel_uriref)
             submodels_value.append(submodel_ref)
