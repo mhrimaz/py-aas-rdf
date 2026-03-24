@@ -219,7 +219,7 @@ def test_json_rdf_roundtrip(json_file: Path):
     output_ttl_path = RDF_BASE / relative_path.with_suffix(".ttl")
     output_jsonld_raw_path = RDF_BASE / relative_path.with_suffix(".jsonld-raw.json")
     output_jsonld_with_context_path = RDF_BASE / relative_path.with_suffix(".jsonld-with-context.json")
-
+    skolem_prefix = "urn:well-known:genid:"
     # Ensure directory exists
     output_ttl_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -230,23 +230,26 @@ def test_json_rdf_roundtrip(json_file: Path):
     # 3. Instantiate model and convert to RDF
     aas_env = Environment(**original_dict)
     graph, created_node = aas_env.to_rdf()
-
+    skolemized_graph = graph.skolemize(basepath=skolem_prefix)
+    skolemized_graph.bind("aas-3", AASNameSpace.AAS_3)
+    skolemized_graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
+    skolemized_graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
 
 
     # 4. Save the RDF (Turtle) to the mirrored folder
     with open(output_ttl_path, "w", encoding="utf-8") as f:
         f.write("# IRI of entities are not normative and can be modified according to your needs.\n")
-        f.write(graph.serialize(format='turtle'))
+        f.write(skolemized_graph.serialize(format='turtle'))
 
     with open(output_jsonld_raw_path, "w", encoding="utf-8") as f:
-        f.write(graph.serialize(format='json-ld', auto_compact=True))
+        f.write(skolemized_graph.serialize(format='json-ld', auto_compact=True))
 
     with open(output_jsonld_with_context_path, "w", encoding="utf-8") as f:
         # Get your context dictionary
         context_dict = json.loads(AASNameSpace.AAS_JSON_LD_CONTEXT_3).get("@context")
 
         # Step 1: Serialize with auto_compact to get ALL nodes (including blank nodes)
-        raw_jsonld_str = graph.serialize(
+        raw_jsonld_str = skolemized_graph.serialize(
             format='json-ld',
             auto_compact=True
         )
@@ -265,7 +268,7 @@ def test_json_rdf_roundtrip(json_file: Path):
     if aas_env != re_created_env:
         with open(output_ttl_path, "w", encoding="utf-8") as f:
             f.write("# Roundtrip failed")
-            f.write(graph.serialize(format='turtle'))
+            f.write(skolemized_graph.serialize(format='turtle'))
 
     # todo: validate the generated graph against shacl shape
     SHACL_GRAPH = rdflib.Graph()
@@ -273,7 +276,7 @@ def test_json_rdf_roundtrip(json_file: Path):
 
     # Run the validation
     conforms, results_graph, results_text = validate(
-        data_graph=graph,
+        data_graph=skolemized_graph,
         shacl_graph=SHACL_GRAPH,
         shacl_graph_format="turtle",  # Update this if your string is xml, json-ld, etc.
         inference="rdfs",  # Optional: use if your shape relies on subclassing
@@ -286,7 +289,7 @@ def test_json_rdf_roundtrip(json_file: Path):
             f.write("# SHACL Validation failed")
             f.write(results_text)
             f.write("# Data")
-            f.write(graph.serialize(format='turtle'))
+            f.write(skolemized_graph.serialize(format='turtle'))
     # Comparison logic
     # First: Compare model objects directly
     assert aas_env == re_created_env
