@@ -34,6 +34,7 @@ class ModelType(Enum):
     Capability = "Capability"
     ConceptDescription = "ConceptDescription"
     DataSpecificationIec61360 = "DataSpecificationIec61360"
+    DataSpecificationUom = "DataSpecificationUom"
     Entity = "Entity"
     File = "File"
     MultiLanguageProperty = "MultiLanguageProperty"

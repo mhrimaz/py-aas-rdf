@@ -31,3 +31,4 @@ class AssetKind(Enum):
     NotApplicable = "NotApplicable"
     Type = "Type"
     Role = "Role"
+    Batch = "Batch"

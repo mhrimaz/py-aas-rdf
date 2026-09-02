@@ -83,9 +83,7 @@ class LevelType(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["LevelType"]))
@@ -126,9 +124,7 @@ class ValueReferencePair(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["ValueReferencePair"]))
@@ -171,9 +167,7 @@ class ValueList(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["ValueList"]))
@@ -213,7 +207,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
     valueList: Optional[ValueList] = None
     value: Optional[constr(min_length=1, max_length=2048)] = None
     levelType: Optional[LevelType] = None
-    modelType: ModelType = ModelType.DataSpecificationIec61360
+    modelType: Literal["DataSpecificationIec61360"] = ModelType.DataSpecificationIec61360.value
 
     def to_rdf(
         self,
@@ -225,9 +219,7 @@ class DataSpecificationIec61360(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.IEC61360_3["DataSpecificationIec61360"]))

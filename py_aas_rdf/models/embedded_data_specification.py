@@ -20,20 +20,24 @@
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from enum import Enum
-from typing import Any, List, Optional, Union, Literal
+from typing import Any, Annotated, List, Optional, Union, Literal
 
 import rdflib
 from pydantic import BaseModel, Field, constr
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
 from py_aas_rdf.models.data_specification_iec_61360 import DataSpecificationIec61360
+from py_aas_rdf.models.data_specification_uom import DataSpecificationUom
 from py_aas_rdf.models.rdfiable import RDFiable
 from py_aas_rdf.models.reference import Reference
 
 
 class EmbeddedDataSpecification(BaseModel, RDFiable):
     dataSpecification: Reference
-    dataSpecificationContent: Union[DataSpecificationIec61360]
+    dataSpecificationContent: Annotated[
+        Union[DataSpecificationIec61360, DataSpecificationUom],
+        Field(discriminator="modelType"),
+    ]
 
     def to_rdf(
         self,
@@ -45,9 +49,7 @@ class EmbeddedDataSpecification(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
 
         node = rdflib.BNode()
         graph.add((node, rdflib.RDF.type, AASNameSpace.AAS_3["EmbeddedDataSpecification"]))
@@ -89,4 +91,6 @@ class EmbeddedDataSpecification(BaseModel, RDFiable):
         )
         if content_ref_type == AASNameSpace.IEC61360_3["DataSpecificationIec61360"]:
             content = DataSpecificationIec61360.from_rdf(graph, content_ref)
+        elif content_ref_type == AASNameSpace.UOM_3["DataSpecificationUom"]:
+            content = DataSpecificationUom.from_rdf(graph, content_ref)
         return EmbeddedDataSpecification(dataSpecification=data_specification, dataSpecificationContent=content)

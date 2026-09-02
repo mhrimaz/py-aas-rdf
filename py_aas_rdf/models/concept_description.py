@@ -51,9 +51,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
             graph.bind("myaas", base_uri)
 
         if id_strategy == "base64-url-encode":
@@ -84,7 +82,7 @@ class ConceptDescription(Identifiable, HasDataSpecification, RDFiable):
             (
                 node,
                 AASNameSpace.AAS_3["modelVersion"],
-                rdflib.Literal("3.1"),
+                rdflib.Literal("3.2"),
             )
         )
         return graph, node

@@ -19,6 +19,7 @@
 #  CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
 #  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import sys
 from enum import Enum
 from typing import Any, List, Optional, Union, Literal, Annotated
 
@@ -32,7 +33,7 @@ from py_aas_rdf.models.capability import Capability
 from py_aas_rdf.models.entity import Entity
 from py_aas_rdf.models.file import File
 from py_aas_rdf.models.multi_language_property import MultiLanguageProperty
-from py_aas_rdf.models.operation import Operation
+from py_aas_rdf.models.operation import Operation, OperationVariable
 from py_aas_rdf.models.property import Property
 from py_aas_rdf.models.range import Range
 from py_aas_rdf.models.reference_element import ReferenceElement
@@ -59,3 +60,15 @@ SubmodelElementChoice = Annotated[
     ],
     Field(discriminator="modelType"),
 ]
+
+# SubmodelElementCollection.value, SubmodelElementList.value, Entity.statements,
+# Operation.value, and OperationVariable.value reference "SubmodelElementChoice" as a
+# string to avoid a circular import with this module. Rebuild them here now that the
+# real type is available.
+# _types_namespace replaces (rather than extends) the module's own globals on some
+# pydantic versions, so each model's own module namespace is merged in explicitly to
+# keep names like Optional/List resolvable too.
+for _model in (SubmodelElementCollection, SubmodelElementList, Entity, Operation, OperationVariable):
+    _namespace = dict(vars(sys.modules[_model.__module__]))
+    _namespace["SubmodelElementChoice"] = SubmodelElementChoice
+    _model.model_rebuild(force=True, _types_namespace=_namespace)

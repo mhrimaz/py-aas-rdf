@@ -35,6 +35,8 @@ class AdministrativeInformation(HasDataSpecification):
     revision: Optional[constr(min_length=1, max_length=4, pattern=r"^(0|[1-9][0-9]*)$")] = None
     creator: Optional[Reference] = None
     templateId: Optional[constr(min_length=1, max_length=2000)] = None
+    createdAt: Optional[constr()] = None
+    updatedAt: Optional[constr()] = None
 
     @staticmethod
     def append_as_rdf(instance: "AdministrativeInformation", graph: rdflib.Graph, parent_node: rdflib.IdentifiedNode):
@@ -52,6 +54,18 @@ class AdministrativeInformation(HasDataSpecification):
         if instance.templateId:
             graph.add(
                 (node, AASNameSpace.AAS_3["templateId"], rdflib.Literal(instance.templateId))
+            )
+
+        if instance.createdAt:
+            graph.add(
+                (node, AASNameSpace.AAS_3["createdAt"],
+                 rdflib.Literal(instance.createdAt, datatype=rdflib.XSD.dateTimeStamp, normalize=False))
+            )
+
+        if instance.updatedAt:
+            graph.add(
+                (node, AASNameSpace.AAS_3["updatedAt"],
+                 rdflib.Literal(instance.updatedAt, datatype=rdflib.XSD.dateTimeStamp, normalize=False))
             )
 
         graph.add((parent_node, AASNameSpace.AAS_3["administration"], node))
@@ -89,10 +103,26 @@ class AdministrativeInformation(HasDataSpecification):
         )
         if template_id_ref:
             template_id_value = template_id_ref.value
+        created_at_value = None
+        created_at_ref: rdflib.Literal = next(
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["createdAt"]),
+            None,
+        )
+        if created_at_ref:
+            created_at_value = str(created_at_ref)
+        updated_at_value = None
+        updated_at_ref: rdflib.Literal = next(
+            graph.objects(subject=subject, predicate=AASNameSpace.AAS_3["updatedAt"]),
+            None,
+        )
+        if updated_at_ref:
+            updated_at_value = str(updated_at_ref)
         return AdministrativeInformation(
             version=version_value,
             revision=revision_value,
             creator=creator_value,
             templateId=template_id_value,
+            createdAt=created_at_value,
+            updatedAt=updated_at_value,
             embeddedDataSpecifications=hasDataSpecification.embeddedDataSpecifications,
         )

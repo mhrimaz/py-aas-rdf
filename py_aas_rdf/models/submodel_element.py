@@ -48,9 +48,7 @@ class SubmodelElement(Referable, HasSemantics, Qualifiable, HasDataSpecification
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph == None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
         if self.idShort:
             node = rdflib.URIRef(f"{base_uri}{prefix_uri}{self.idShort}")
         else:

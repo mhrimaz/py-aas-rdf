@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import pytest
 import rdflib
+from pyld import jsonld
 
 from py_aas_rdf.models.aas_namespace import AASNameSpace
 from py_aas_rdf.models.environment import Environment
@@ -40,6 +41,7 @@ def frame_rdf_to_tree(raw_jsonld, context):
     """
     AAS = "https://admin-shell.io/aas/3/"
     IEC = "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationIec61360/3/"
+    UOM = "https://admin-shell.io/DataSpecificationTemplates/DataSpecificationUom/3/"
 
     # --- 1. Normalize input to a flat list of nodes ---
     if isinstance(raw_jsonld, dict) and "@graph" in raw_jsonld:
@@ -64,6 +66,8 @@ def frame_rdf_to_tree(raw_jsonld, context):
                 iri = AAS + iri[4:]
             elif iri.startswith("iec61360:"):
                 iri = IEC + iri[9:]
+            elif iri.startswith("uom:"):
+                iri = UOM + iri[4:]
             iri_to_name[iri] = name
             name_to_config[name] = defn
 
@@ -73,10 +77,14 @@ def frame_rdf_to_tree(raw_jsonld, context):
             return AAS + s[6:]
         if s.startswith("aas-iec61360-3:"):
             return IEC + s[15:]
+        if s.startswith("aas-uom-3:"):
+            return UOM + s[10:]
         if s.startswith("aas:"):
             return AAS + s[4:]
         if s.startswith("iec61360:"):
             return IEC + s[9:]
+        if s.startswith("uom:"):
+            return UOM + s[4:]
         return s
 
     def compact_prop_name(k):
@@ -107,10 +115,12 @@ def frame_rdf_to_tree(raw_jsonld, context):
             return compact_type_value(t[0]) if t else None
         expanded = expand_prefix(t) if isinstance(t, str) else t
         if isinstance(expanded, str):
-            if expanded.startswith(AAS):
-                return expanded[len(AAS):]
             if expanded.startswith(IEC):
                 return expanded[len(IEC):]
+            if expanded.startswith(UOM):
+                return expanded[len(UOM):]
+            if expanded.startswith(AAS):
+                return expanded[len(AAS):]
         return t
 
     def compact_single_value(val, config):
@@ -218,7 +228,8 @@ def test_json_rdf_roundtrip(json_file: Path):
     relative_path = json_file.relative_to(JSON_BASE)
     output_ttl_path = RDF_BASE / relative_path.with_suffix(".ttl")
     output_jsonld_raw_path = RDF_BASE / relative_path.with_suffix(".jsonld-raw.json")
-    output_jsonld_with_context_path = RDF_BASE / relative_path.with_suffix(".jsonld-with-context.json")
+    output_jsonld_compact_path = RDF_BASE / relative_path.with_suffix(".jsonld-compact.json")
+    output_jsonld_framed_path = RDF_BASE / relative_path.with_suffix(".jsonld-framed.json")
     skolem_prefix = "urn:well-known:genid:"
     # Ensure directory exists
     output_ttl_path.parent.mkdir(parents=True, exist_ok=True)
@@ -234,6 +245,7 @@ def test_json_rdf_roundtrip(json_file: Path):
     skolemized_graph.bind("aas-3", AASNameSpace.AAS_3)
     skolemized_graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
     skolemized_graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+    skolemized_graph.bind("aas-uom-3", AASNameSpace.UOM_3)
 
 
     # 4. Save the RDF (Turtle) to the mirrored folder
@@ -241,24 +253,37 @@ def test_json_rdf_roundtrip(json_file: Path):
         f.write("# IRI of entities are not normative and can be modified according to your needs.\n")
         f.write(skolemized_graph.serialize(format='turtle'))
 
+    # Raw JSON-LD: rdflib's own auto_compact, flat @graph list, no custom context.
+    raw_jsonld_str = skolemized_graph.serialize(format='json-ld', auto_compact=True)
     with open(output_jsonld_raw_path, "w", encoding="utf-8") as f:
-        f.write(skolemized_graph.serialize(format='json-ld', auto_compact=True))
+        f.write(raw_jsonld_str)
 
-    with open(output_jsonld_with_context_path, "w", encoding="utf-8") as f:
-        # Get your context dictionary
-        context_dict = json.loads(AASNameSpace.AAS_JSON_LD_CONTEXT_3).get("@context")
+    aas_context = json.loads(AASNameSpace.AAS_JSON_LD_CONTEXT_3)
+    context_dict = aas_context.get("@context")
+    raw_data = json.loads(raw_jsonld_str)
 
-        # Step 1: Serialize with auto_compact to get ALL nodes (including blank nodes)
-        raw_jsonld_str = skolemized_graph.serialize(
-            format='json-ld',
-            auto_compact=True
-        )
+    # Compact JSON-LD: standard JSON-LD compaction (jsonld.compact) against our
+    # context. Still a flat @graph list per the JSON-LD Compaction algorithm --
+    # compaction only shortens IRIs into terms, it doesn't restructure the graph.
+    compact_json = jsonld.compact(raw_data, {"@context": context_dict})
+    with open(output_jsonld_compact_path, "w", encoding="utf-8") as f:
+        json.dump(compact_json, f, indent=4, sort_keys=True)
 
-        # Step 2: Compact property names + nest blank nodes using context
-        raw_data = json.loads(raw_jsonld_str)
-        framed_json = frame_rdf_to_tree(raw_data, context_dict)
-
-        # Step 3: Write the pretty-printed, framed JSON to the file
+    # Framed JSON-LD: standard JSON-LD framing (jsonld.frame), rooted at
+    # @type=Environment with @embed=@always so every referenced node -- not just
+    # single-referenced blank nodes -- is nested inline. Framing is the JSON-LD
+    # operation that shapes the graph into a tree; no custom Python logic involved.
+    frame_document = {
+        "@context": context_dict,
+        "@type": "Environment",
+        "@embed": "@always",
+    }
+    framed_json = jsonld.frame(
+        raw_data,
+        frame_document,
+        options={"omitGraph": True, "pruneBlankNodeIdentifiers": True},
+    )
+    with open(output_jsonld_framed_path, "w", encoding="utf-8") as f:
         json.dump(framed_json, f, indent=4, sort_keys=True)
 
 
@@ -270,7 +295,6 @@ def test_json_rdf_roundtrip(json_file: Path):
             f.write("# Roundtrip failed")
             f.write(skolemized_graph.serialize(format='turtle'))
 
-    # todo: validate the generated graph against shacl shape
     SHACL_GRAPH = rdflib.Graph()
     SHACL_GRAPH.parse(data=AASNameSpace.AAS_SHACL_3, format="turtle")
 
@@ -285,7 +309,7 @@ def test_json_rdf_roundtrip(json_file: Path):
     )
     if conforms==False:
         with open(output_ttl_path, "w", encoding="utf-8") as f:
-            print(f"validation failed for {relative_path}")
+            print(f"\n validation failed for {relative_path} \n")
             f.write("# SHACL Validation failed")
             f.write(results_text)
             f.write("# Data")
@@ -336,6 +360,7 @@ def test_single_file_roundtrip_and_save():
     skolemized_graph.bind("aas-3", AASNameSpace.AAS_3)
     skolemized_graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
     skolemized_graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+    skolemized_graph.bind("aas-uom-3", AASNameSpace.UOM_3)
     # 4. Save the Skolemized RDF
     with open(output_ttl_path, "w", encoding="utf-8") as f:
         f.write(f"# Skolemized with prefix: {skolem_prefix}\n")

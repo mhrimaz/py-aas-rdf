@@ -3,6 +3,7 @@
 """Tests for `py_aas_rdf` package."""
 from py_aas_rdf.models import make_uri, is_irdi
 from py_aas_rdf.models.data_specification_iec_61360 import ValueList, ValueReferencePair, DataSpecificationIec61360
+from py_aas_rdf.models.data_specification_uom import DataSpecificationUom
 from py_aas_rdf.models.environment import Environment
 from py_aas_rdf.models.key import Key
 from py_aas_rdf.models.multi_language_property import MultiLanguageProperty
@@ -143,6 +144,83 @@ def test_dataspec_to_rdf():
     print(graph.serialize(format='turtle'))
 
     re_created = DataSpecificationIec61360.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_dataspec_uom_to_rdf():
+    payload = DataSpecificationUom(**{
+                  "modelType": "DataSpecificationUom",
+                  "preferredName": [
+                    {
+                      "language": "sr-Latn",
+                      "text": "something_7282cc23"
+                    }
+                  ],
+                  "symbol": "something_b4f12294"
+                })
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+
+    re_created = DataSpecificationUom.from_rdf(graph, created_node)
+    assert payload == re_created
+
+
+def test_env_embedded_dataspec_uom_to_rdf():
+    payload = Environment(**{
+      "assetAdministrationShells": [
+        {
+          "administration": {
+            "createdAt": "2022-04-01T01:02:03Z",
+            "creator": {
+              "keys": [
+                {
+                  "type": "Submodel",
+                  "value": "urn:something11:6a596807"
+                }
+              ],
+              "type": "ModelReference"
+            },
+            "embeddedDataSpecifications": [
+              {
+                "dataSpecification": {
+                  "keys": [
+                    {
+                      "type": "GlobalReference",
+                      "value": "urn:something14:18179b7a"
+                    }
+                  ],
+                  "type": "ExternalReference"
+                },
+                "dataSpecificationContent": {
+                  "modelType": "DataSpecificationUom",
+                  "preferredName": [
+                    {
+                      "language": "sr-Latn",
+                      "text": "something_7282cc23"
+                    }
+                  ],
+                  "symbol": "something_b4f12294"
+                }
+              }
+            ],
+            "revision": "0",
+            "templateId": "something_cb08d136",
+            "updatedAt": "0013-10-11T24:00:00.000000Z",
+            "version": "1230"
+          },
+          "assetInformation": {
+            "assetKind": "Role",
+            "globalAssetId": "something_eea66fa1"
+          },
+          "id": "something_142922d6",
+          "modelType": "AssetAdministrationShell"
+        }
+      ]
+    })
+
+    graph, created_node = payload.to_rdf()
+    print(graph.serialize(format='turtle'))
+    re_created = Environment.from_rdf(graph, created_node)
     assert payload == re_created
 
 

@@ -79,9 +79,7 @@ class Environment(BaseModel, RDFiable):
     ) -> (rdflib.Graph, rdflib.IdentifiedNode):
         if graph is None:
             graph = rdflib.Graph()
-            graph.bind("aas-3", AASNameSpace.AAS_3)
-            graph.bind("aas-3-ex", AASNameSpace.AAS_3_EXTENDED)
-            graph.bind("aas-iec61360-3", AASNameSpace.IEC61360_3)
+            AASNameSpace.bind_prefixes(graph)
         node = rdflib.BNode()
         graph.add((node, RDF.type, AASNameSpace.AAS_3["Environment"]))
         if self.submodels:
